@@ -1,6 +1,7 @@
 module Geometry.Vector where
 
 import Prelude hiding (zipWith)
+import Data.Ratio
 
 data Vector = Vector !Float !Float !Float
 
@@ -33,3 +34,8 @@ instance Num Vector where
   signum v@(Vector a b c) = Vector (a / r) (b / r) (c / r) where r = magnitude v
 
   fromInteger i = Vector (fromInteger i) 0 0
+
+instance Fractional Vector where
+  Vector x1 y1 z1 / Vector x2 y2 z2 = Vector (x1 / x2) (y1 / y2) (z1 / z2)
+
+  fromRational r = fromInteger (numerator r `div` denominator r)
