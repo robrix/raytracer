@@ -23,6 +23,10 @@ cross (Vector u1 u2 u3) (Vector v1 v2 v3) = Vector (u2 * v3 - u3 * v2) (u3 * v1 
 dot :: Vector -> Vector -> Float
 dot a b = case a * b of Vector x y z -> x + y + z
 
+normalize :: Vector -> Vector
+normalize v = if d == 0 then zero else v / fromScalar d
+  where d = magnitude v
+
 instance Num Vector where
   (+) = zipWith (+)
   (*) = zipWith (*)
