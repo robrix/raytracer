@@ -19,3 +19,7 @@ getWidth (Rendering (row : _)) = length row
 toPPM :: Rendering -> ByteString
 toPPM r = pack header
   where header = fmap c2w $ "P6 " ++ show (getWidth r) ++ " " ++ show (getHeight r) ++ " 255\n"
+
+average :: Pixel -> Colour
+average p = case mconcat p of Colour r g b a -> Colour (r / l) (g / l) (b / l) (a / l)
+  where l = fromIntegral (length p)
