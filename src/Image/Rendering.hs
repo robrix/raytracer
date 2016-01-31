@@ -9,12 +9,12 @@ type Pixel = [Sample]
 
 newtype Rendering = Rendering { getPixels :: [[Pixel]] }
 
-getWidth :: Rendering -> Int
-getWidth = length . getPixels
-
 getHeight :: Rendering -> Int
-getHeight (Rendering []) = 0
-getHeight (Rendering (column : _)) = length column
+getHeight = length . getPixels
+
+getWidth :: Rendering -> Int
+getWidth (Rendering []) = 0
+getWidth (Rendering (row : _)) = length row
 
 toPPM :: Rendering -> ByteString
 toPPM r = pack header
