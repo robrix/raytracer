@@ -18,7 +18,6 @@ library
   exposed-modules:     Geometry.Vector
                      , Geometry.Ray
                      , Image.Colour
-                     , Image.Pixel
   build-depends:       base >= 4.7 && < 5
   default-language:    Haskell2010
 

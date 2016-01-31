@@ -1,1 +1,0 @@
-module Image.Pixel where
