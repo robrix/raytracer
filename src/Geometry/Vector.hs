@@ -27,6 +27,11 @@ normalize :: Vector -> Vector
 normalize v = if d == 0 then zero else v / fromScalar d
   where d = magnitude v
 
+projection :: Vector -> Vector -> Vector
+projection a b = fromScalar scalar * unit
+  where scalar = a `dot` unit
+        unit = normalize b
+
 instance Num Vector where
   (+) = zipWith (+)
   (*) = zipWith (*)
