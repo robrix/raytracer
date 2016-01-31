@@ -22,7 +22,7 @@ toPPM :: Rendering -> ByteString
 toPPM r = pack header <> pack (join (fmap (join . fmap pixelToWords) (getPixels r)))
   where header = fmap c2w $ "P6 " ++ show (getWidth r) ++ " " ++ show (getHeight r) ++ " 255\n"
         pixelToWords p = case average p of Colour r g b a -> fmap componentToWord [ r, g, b, a ]
-        componentToWord c = fromIntegral (round (c * 255))
+        componentToWord c = min 255 (fromIntegral (round (c * 255)))
 
 average :: Pixel -> Colour
 average p = case mconcat p of Colour r g b a -> Colour (r / l) (g / l) (b / l) (a / l)
