@@ -1,4 +1,4 @@
-module Ray where
+module Geometry.Ray where
 
 import Geometry.Vector
 
