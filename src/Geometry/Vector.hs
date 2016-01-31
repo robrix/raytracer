@@ -32,6 +32,9 @@ projection a b = fromScalar scalar * unit
   where scalar = a `dot` unit
         unit = normalize b
 
+rejection :: Vector -> Vector -> Vector
+rejection a b = a - projection a b
+
 instance Num Vector where
   (+) = zipWith (+)
   (*) = zipWith (*)
