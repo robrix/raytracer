@@ -21,7 +21,7 @@ getWidth (Rendering (row : _)) = length row
 toPPM :: Rendering -> ByteString
 toPPM r = pack header <> pack (join (fmap (join . fmap pixelToWords) (getPixels r)))
   where header = fmap c2w $ "P6 " ++ show (getWidth r) ++ " " ++ show (getHeight r) ++ " 255\n"
-        pixelToWords p = case average p of Colour r g b a -> fmap componentToWord [ r, g, b, a ]
+        pixelToWords p = case average p of Colour r g b _ -> fmap componentToWord [ r, g, b ]
         componentToWord c = max 0 $ min 255 $ fromIntegral $ round (c * 255)
 
 average :: Pixel -> Colour
