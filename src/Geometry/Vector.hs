@@ -13,6 +13,9 @@ magnitude (Vector a b c) = sqrt (a * a + b * b + c * c)
 cross :: Vector -> Vector -> Vector
 cross (Vector u1 u2 u3) (Vector v1 v2 v3) = Vector (u2 * v3 - u3 * v2) (u3 * v1 - u1 * v3) (u1 * v2 - u2 * v1)
 
+dot :: Vector -> Vector -> Float
+dot a b = case a * b of Vector x y z -> x + y + z
+
 instance Num Vector where
   (+) = zipWith (+)
   (*) = zipWith (*)
