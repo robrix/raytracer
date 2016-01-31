@@ -11,4 +11,6 @@ main = do
   ByteString.writeFile path (toPPM rendering)
 
 rendering :: Rendering
-rendering = Rendering [ [ [ clear ] ] ]
+rendering = Rendering $ fmap toRow [0..3]
+  where toRow i = fmap (toPixel i) [0..3]
+        toPixel r b = [ Colour (r / 3) 0 (b / 3) 1 ]
