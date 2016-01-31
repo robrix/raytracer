@@ -2,4 +2,4 @@ module Geometry.Ray where
 
 import Geometry.Vector
 
-data Ray = Ray !Vector !Vector
+data Ray = Ray { getLocation :: !Vector, getDirection :: !Vector }
