@@ -8,4 +8,7 @@ import System.Environment
 main :: IO ()
 main = do
   [path] <- getArgs
-  ByteString.writeFile path $ toPPM (Rendering [ [ [ clear ] ] ])
+  ByteString.writeFile path (toPPM rendering)
+
+rendering :: Rendering
+rendering = Rendering [ [ [ clear ] ] ]
