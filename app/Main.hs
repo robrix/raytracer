@@ -22,9 +22,7 @@ render scene = Rendering $ fmap toRow [0..3]
         width = 800
         height = 600
         row y = [ Ray { getLocation = Vector x y 0, getDirection = Vector 0 0 1 } | x <- [-width / 2..width / 2] ]
-        rays = do
-          y <- [-height / 2..height / 2]
-          row y
+        rays = row <$> [-height / 2..height / 2]
 
 trace :: Scene -> Ray -> Sample
 trace scene ray = clear
