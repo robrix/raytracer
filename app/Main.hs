@@ -2,6 +2,7 @@ module Main where
 
 import qualified Data.ByteString as ByteString
 import Geometry.Ray
+import Geometry.Sphere
 import Geometry.Vector
 import Image.Colour
 import Image.Rendering
@@ -11,7 +12,7 @@ import System.Environment
 main :: IO ()
 main = do
   [path] <- getArgs
-  ByteString.writeFile path (toPPM (render (Scene Nothing)))
+  ByteString.writeFile path . toPPM . render . Scene $ Just Sphere { getCentre = Vector 0 0 10, getRadius = 5 }
 
 render :: Scene -> Rendering
 render scene = Rendering $ fmap toRow [0..3]
