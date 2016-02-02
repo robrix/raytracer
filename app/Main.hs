@@ -24,3 +24,6 @@ render scene = Rendering $ fmap toRow [0..3]
         rays = do
           y <- [-height / 2..height / 2]
           row y
+
+trace :: Scene -> Ray -> Sample
+trace scene ray = clear
