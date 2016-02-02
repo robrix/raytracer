@@ -5,15 +5,16 @@ import Geometry.Ray
 import Geometry.Vector
 import Image.Colour
 import Image.Rendering
+import Model.Scene
 import System.Environment
 
 main :: IO ()
 main = do
   [path] <- getArgs
-  ByteString.writeFile path (toPPM rendering)
+  ByteString.writeFile path (toPPM (render (Scene Nothing)))
 
-rendering :: Rendering
-rendering = Rendering $ fmap toRow [0..3]
+render :: Scene -> Rendering
+render scene = Rendering $ fmap toRow [0..3]
   where toRow i = fmap (toPixel i) [0..3]
         toPixel r b = [ Colour (r / 3) 0 (b / 3) 1 ]
 
