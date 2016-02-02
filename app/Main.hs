@@ -12,7 +12,7 @@ import System.Environment
 main :: IO ()
 main = do
   [path] <- getArgs
-  ByteString.writeFile path . toPPM . render . Scene $ Just Sphere { getCentre = Vector 0 0 10, getRadius = 5 }
+  ByteString.writeFile path . toPPM . render $ Scene Sphere { getCentre = Vector 0 0 10, getRadius = 5 }
 
 render :: Scene -> Rendering
 render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
@@ -25,5 +25,4 @@ render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
         rays = row <$> [-height / 2..height / 2]
 
 trace :: Scene -> Ray -> Sample
-trace (Scene (Just _)) ray = clear
-trace (Scene Nothing) ray = clear
+trace (Scene _) ray = clear
