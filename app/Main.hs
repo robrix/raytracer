@@ -25,4 +25,5 @@ render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
         rays = row <$> [-height / 2..height / 2]
 
 trace :: Scene -> Ray -> Sample
-trace scene ray = clear
+trace (Scene (Just _)) ray = clear
+trace (Scene Nothing) ray = clear
