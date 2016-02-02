@@ -15,7 +15,7 @@ main = do
   ByteString.writeFile path . toPPM . render . Scene $ Just Sphere { getCentre = Vector 0 0 10, getRadius = 5 }
 
 render :: Scene -> Rendering
-render scene = Rendering $ fmap toRow [0..3]
+render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
   where toRow i = fmap (toPixel i) [0..3]
         toPixel r b = [ Colour (r / 3) 0 (b / 3) 1 ]
 
