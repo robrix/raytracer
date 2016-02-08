@@ -12,7 +12,7 @@ import System.Environment
 main :: IO ()
 main = do
   [path] <- getArgs
-  ByteString.writeFile path . toPPM . render $ Scene Sphere { getCentre = Vector 0 0 10, getRadius = 5 }
+  ByteString.writeFile path . toPPM . render $ Scene Sphere { getCentre = Vector 0 0 10, getRadius = 100 }
 
 render :: Scene -> Rendering
 render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
