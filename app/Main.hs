@@ -25,10 +25,6 @@ render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
         rays = row <$> [-height / 2..height / 2]
 
 trace :: Scene -> Ray -> Sample
-trace (Scene (Sphere c r)) (Ray o l) = if under < 0 then clear else Colour 1 1 1 1
-  where d1 = negate dotted + sqrt under
-        d2 = negate dotted - sqrt under
-        translated = o - c
-        under = dotted * dotted - offset * offset + r * r
-        dotted = l `dot` translated
-        offset = magnitude translated
+trace (Scene sphere) ray = case intersectionsWithSphere ray sphere of
+  [] -> clear
+  otherwise -> Colour 1 1 1 1
