@@ -1,2 +1,6 @@
+import Test.Hspec
+import Geometry.Vector.Spec
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = hspec $ do
+  describe "Geometry.Vector" Geometry.Vector.Spec.spec
