@@ -4,6 +4,7 @@ import Prelude hiding (zipWith)
 import Data.Ratio
 
 data Vector = Vector !Float !Float !Float
+  deriving Show
 
 fromScalar :: Float -> Vector
 fromScalar s = Vector s s s
