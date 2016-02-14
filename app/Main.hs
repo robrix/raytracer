@@ -27,4 +27,4 @@ render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
 trace :: Scene -> Ray -> Sample
 trace (Scene sphere) ray = case intersectionsWithSphere ray sphere of
   [] -> clear
-  otherwise -> Colour 1 1 1 1
+  (Intersection _ (Vector x y z) : _) -> Colour x y z 1
