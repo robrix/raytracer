@@ -15,7 +15,7 @@ main = do
   ByteString.writeFile path . toPPM . render $ Scene Sphere { getCentre = Vector 0 0 10, getRadius = 100 }
 
 render :: Scene -> Rendering
-render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
+render scene = Rendering $ fmap (fmap (pure . trace 8 scene)) rays
   where toRow i = fmap (toPixel i) [0..3]
         toPixel r b = [ Colour (r / 3) 0 (b / 3) 1 ]
 
@@ -24,7 +24,8 @@ render scene = Rendering $ fmap (fmap (pure . trace scene)) rays
         row y = [ Ray { getLocation = Vector x y 0, getDirection = Vector 0 0 1 } | x <- [-width / 2..width / 2] ]
         rays = row <$> [-height / 2..height / 2]
 
-trace :: Scene -> Ray -> Sample
-trace (Scene sphere) ray = case intersectionsWithSphere ray sphere of
+trace :: Int -> Scene -> Ray -> Sample
+trace 0 _ _ = clear
+trace n (Scene sphere) ray = case intersectionsWithSphere ray sphere of
   [] -> clear
   (Intersection _ (Vector x y z) : _) -> Colour x y z 1
