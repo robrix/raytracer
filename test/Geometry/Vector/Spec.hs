@@ -2,6 +2,11 @@ module Geometry.Vector.Spec where
 
 import Geometry.Vector
 import Test.Hspec
+import Test.Hspec.QuickCheck
+import Test.QuickCheck
+
+instance Arbitrary Vector where
+  arbitrary = Vector <$> arbitrary <*> arbitrary <*> arbitrary 
 
 spec :: Spec
 spec = do
