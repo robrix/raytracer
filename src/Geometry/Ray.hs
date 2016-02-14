@@ -6,6 +6,8 @@ import Geometry.Sphere
 
 data Ray = Ray { getLocation :: !Vector, getDirection :: !Vector }
 
+newtype Normal = Normal { unNormal :: Vector }
+
 -- | Compute the set of intersections between a Ray and a Sphere as a list of Vectors in increasing order of distance.
 intersectionsWithSphere :: Ray -> Sphere -> [Vector]
 intersectionsWithSphere (Ray o l) (Sphere c r) = if under < 0 then [] else atDistance <$> sort [ d1, d2 ]
