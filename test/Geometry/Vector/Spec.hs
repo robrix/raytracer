@@ -38,6 +38,10 @@ spec = do
     prop "is commutative" $
       \ a b -> a + b `shouldBe` b + (a :: Vector)
 
+  describe "*" $ do
+    prop "is commutative" $
+      \ a b -> a * b `shouldBe` b * (a :: Vector)
+
   where isWithinEpsilon _ actual expected | actual == expected = True
         isWithinEpsilon epsilon actual expected = let diff = abs (actual - expected)
                                                       minNormal = fromIntegral (fst (floatRange actual))
