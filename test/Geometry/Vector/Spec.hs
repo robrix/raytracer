@@ -30,6 +30,10 @@ spec = do
     it "is identity on the zero vector" $
       let zero = Vector 0 0 0 in normalize zero `shouldBe` zero
 
+  describe "+" $ do
+    prop "is commutative" $
+      \ a b -> a + b `shouldBe` b + (a :: Vector)
+
   where isWithinEpsilon _ actual expected | actual == expected = True
         isWithinEpsilon epsilon actual expected = let diff = abs (actual - expected)
                                                       minNormal = fromIntegral (fst (floatRange actual))
