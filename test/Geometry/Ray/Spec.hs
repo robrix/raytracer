@@ -15,3 +15,6 @@ spec = do
 
     it "is empty when it misses the sphere" $
       intersectionsWithSphere (Ray (Vector 100 100 100) (Vector 0 0 (-1))) (Sphere (Vector 0 0 0) 50) `shouldBe` []
+
+    it "produces intersections for Ray collisions" $
+      intersectionsWithSphere (Ray (Vector 0 0 100) (Vector 0 0 (-1))) (Sphere (Vector 0 0 0) 50) `shouldBe` [ Intersection (Vector 0 0 50) (Vector 0 0 1), Intersection (Vector 0 0 (-50)) (Vector 0 0 (-1)) ]
