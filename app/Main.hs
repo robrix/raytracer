@@ -27,6 +27,6 @@ render scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trac
 
 trace :: Int -> Scene -> Ray -> Sample
 trace 0 _ _ = clear
-trace n (Scene sphere) ray = case intersectionsWithSphere ray sphere of
+trace n (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
   [] -> clear
-  (Intersection _ (Vector x y z) : _) -> Colour x y z 1
+  (Intersection _ n : _) -> let v = n `dot` d in Colour (min (abs (Vector 0 0 255 `dot` n)) 255) (min (abs (Vector 0 0 255 `dot` n)) 255) (min (abs (Vector 0 0 255 `dot` n)) 255) v
