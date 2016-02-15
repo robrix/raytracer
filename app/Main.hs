@@ -26,4 +26,7 @@ trace :: Int -> Scene -> Ray -> Sample
 trace 0 _ _ = clear
 trace n (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
   [] -> clear
-  (Intersection _ n : _) -> let v = n `dot` d in Colour (min (abs (Vector 0 0 255 `dot` n)) 255) (min (abs (Vector 0 0 255 `dot` n)) 255) (min (abs (Vector 0 0 255 `dot` n)) 255) v
+  (Intersection _ n : _) -> let v = n `dot` d in Colour (min (abs (_x `dot` n)) 255) (min (abs (_y `dot` n)) 255) (min (abs (_z `dot` n)) 255) v
+  where _x = Vector 1 0 0
+        _y = Vector 0 1 0
+        _z = Vector 0 0 1
