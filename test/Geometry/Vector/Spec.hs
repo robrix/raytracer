@@ -23,6 +23,10 @@ spec = do
     prop "is commutative" $
       \ a b -> (a `dot` b) `shouldBe` (b `dot` a)
 
+  describe "normalize" $ do
+    prop "reduces to unit magnitude" $ forAll (arbitrary `suchThat` \ (a, b, c) -> a + b + c /= 0) $
+      \ (a, b, c) -> magnitude (normalize (Vector a b c)) `shouldSatisfy` isWithinEpsilon 0.1 1
+
   where isWithinEpsilon _ actual expected | actual == expected = True
         isWithinEpsilon epsilon actual expected = let diff = abs (actual - expected)
                                                       minNormal = fromIntegral (fst (floatRange actual))
