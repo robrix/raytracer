@@ -14,6 +14,9 @@ spec = do
     prop "is zero for orthogonal vectors" $
       \ x y -> (Vector x y 0 `dot` Vector (negate y) x 0) `shouldBe` 0
 
+    prop "is the square of the length of a vector when applied to that vector" $
+      \ v -> sqrt (v `dot` v) `shouldBe` magnitude v
+
     prop "is negative for opposed vectors" $
       \ v -> (v `dot` (v * fromScalar (negate 1))) `shouldSatisfy` isNegative
 
