@@ -27,6 +27,9 @@ spec = do
     prop "reduces to unit magnitude" $ forAll (arbitrary `suchThat` \ (a, b, c) -> a + b + c /= 0) $
       \ (a, b, c) -> magnitude (normalize (Vector a b c)) `shouldSatisfy` isWithinEpsilon 0.1 1
 
+    it "is identity on the zero vector" $
+      let zero = Vector 0 0 0 in normalize zero `shouldBe` zero
+
   where isWithinEpsilon _ actual expected | actual == expected = True
         isWithinEpsilon epsilon actual expected = let diff = abs (actual - expected)
                                                       minNormal = fromIntegral (fst (floatRange actual))
