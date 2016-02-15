@@ -11,8 +11,8 @@ instance Arbitrary Vector where
 spec :: Spec
 spec = do
   describe "dot" $ do
-    it "is zero for orthogonal vectors" $
-      (Vector 0 0 1 `dot` Vector 1 0 0) `shouldBe` 0
+    prop "is zero for orthogonal vectors" $
+      \ x y -> (Vector x y 0 `dot` Vector (negate y) x 0) `shouldBe` 0
 
     prop "is negative for opposed vectors" $
       \ v -> (v `dot` (v * fromScalar (negate 1))) `shouldSatisfy` isNegative
