@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Parallel.Strategies hiding (dot)
 import qualified Data.ByteString as ByteString
 import Geometry.Ray
 import Geometry.Sphere
@@ -15,7 +16,7 @@ main = do
   ByteString.writeFile path . toPPM . render $ Scene Sphere { getCentre = Vector 0 0 10, getRadius = 100 }
 
 render :: Scene -> Rendering
-render scene = Rendering $ fmap (fmap (pure . trace 8 scene)) rays
+render scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trace 8 scene)) rays
   where toRow i = fmap (toPixel i) [0..3]
         toPixel r b = [ Colour (r / 3) 0 (b / 3) 1 ]
 
