@@ -15,9 +15,10 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Geometry.Vector
+  exposed-modules:     Geometry.Path
                      , Geometry.Ray
                      , Geometry.Sphere
+                     , Geometry.Vector
                      , Image.Colour
                      , Image.Rendering
                      , Model.Scene
