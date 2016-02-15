@@ -38,7 +38,8 @@ test-suite Raytracer-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
-  other-modules:       Geometry.Vector.Spec
+  other-modules:       Geometry.Ray.Spec
+                     , Geometry.Vector.Spec
   build-depends:       base
                      , hspec
                      , QuickCheck
