@@ -17,4 +17,7 @@ spec = do
     prop "is negative for opposed vectors" $
       \ v -> (v `dot` (v * fromScalar (negate 1))) `shouldSatisfy` isNegative
 
+    prop "is commutative" $
+      \ a b -> (a `dot` b) `shouldBe` (b `dot` a)
+
   where isNegative f = f < 0 || isNegativeZero f
