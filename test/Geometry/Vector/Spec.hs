@@ -32,6 +32,9 @@ spec = do
       let zero = Vector 0 0 0 in normalize zero `shouldBe` zero
 
   describe "+" $ do
+    prop "is associative" $
+      \ a b c -> a + (b + c) `shouldBe` (a + b :: Vector) + c
+
     prop "is commutative" $
       \ a b -> a + b `shouldBe` b + (a :: Vector)
 
