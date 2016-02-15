@@ -30,8 +30,9 @@ executable Raytracer-exe
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , Raytracer
                      , bytestring
+                     , parallel
+                     , Raytracer
   default-language:    Haskell2010
 
 test-suite Raytracer-test
