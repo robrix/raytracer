@@ -18,4 +18,4 @@ intersectionsWithSphere (Ray origin direction) (Sphere centre radius) = if discr
         c = case translated of Vector tx ty tz -> tx ** 2 + ty ** 2 + tz ** 2 - radius ** 2
         translated = origin - centre
         discriminant = b ** 2 - 4 * c
-        atDistance d = Intersection (direction + origin * fromScalar d) ((direction + origin * fromScalar d - centre) / fromScalar radius)
+        atDistance d = let intersection = direction + origin * fromScalar d in Intersection intersection ((intersection - centre) / fromScalar radius)
