@@ -9,6 +9,9 @@ import Test.QuickCheck
 
 spec :: Spec
 spec = do
-  describe "intersectionsWithSphere" $
+  describe "intersectionsWithSphere" $ do
     it "is empty when directed away from the sphere" $
       intersectionsWithSphere (Ray (Vector 0 0 100) (Vector 0 0 1)) (Sphere (Vector 0 0 0) 50) `shouldBe` []
+
+    it "is empty when it misses the sphere" $
+      intersectionsWithSphere (Ray (Vector 100 100 100) (Vector 0 0 (-1))) (Sphere (Vector 0 0 0) 50) `shouldBe` []
