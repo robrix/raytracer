@@ -6,7 +6,8 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 instance Arbitrary Vector where
-  arbitrary = Vector <$> arbitrary <*> arbitrary <*> arbitrary
+  arbitrary = Vector <$> arbitraryIntegral <*> arbitraryIntegral <*> arbitraryIntegral
+    where arbitraryIntegral = fromIntegral <$> (arbitrary :: Gen Int)
 
 spec :: Spec
 spec = do
