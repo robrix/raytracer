@@ -7,6 +7,7 @@ import Geometry.Sphere
 data Ray = Ray { getLocation :: !Vector, getDirection :: !Vector }
 
 data Intersection = Intersection { getGlobalCoordinates :: !Vector, getNormal :: !Vector }
+  deriving (Eq, Show)
 
 -- | Compute the set of intersections between a Ray and a Sphere as a list of Intersections in increasing order of distance.
 intersectionsWithSphere :: Ray -> Sphere -> [Intersection]
