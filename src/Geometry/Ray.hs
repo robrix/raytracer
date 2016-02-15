@@ -17,5 +17,5 @@ intersectionsWithSphere (Ray origin direction) (Sphere centre radius) = if discr
         b = 2 * case direction * translated of Vector dx dy dz -> dx + dy + dz
         c = case translated of Vector tx ty tz -> tx ** 2 + ty ** 2 + tz ** 2 - radius ** 2
         translated = origin - centre
-        discriminant = b - 4 * c
+        discriminant = b ** 2 - 4 * c
         atDistance d = Intersection (direction + origin * fromScalar d) ((direction + origin * fromScalar d - centre) / fromScalar radius)
