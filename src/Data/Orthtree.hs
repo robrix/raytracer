@@ -1,3 +1,3 @@
 module Data.Orthtree where
 
-data Orthtree = Orthtree
+data Orthtree = Orthtree { getDimensions :: !Int }
