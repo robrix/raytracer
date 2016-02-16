@@ -21,12 +21,3 @@ render scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trac
         height = 600
         row y = [ Ray { getLocation = Vector x y 0, getDirection = Vector 0 0 1 } | x <- [-width / 2..width / 2] ]
         rays = row <$> [-height / 2..height / 2]
-
-trace :: Int -> Scene -> Ray -> Sample
-trace 0 _ _ = clear
-trace n (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
-  [] -> clear
-  (Intersection _ n : _) -> let v = n `dot` d in Colour (min (abs (_x `dot` n)) 255) (min (abs (_y `dot` n)) 255) (min (abs (_z `dot` n)) 255) v
-  where _x = Vector 1 0 0
-        _y = Vector 0 1 0
-        _z = Vector 0 0 1
