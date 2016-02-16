@@ -1,3 +1,4 @@
 module Data.Orthtree where
 
-data Orthtree = Orthtree { getDimensions :: !Int }
+data Orthtree i a = Orthtree { getDimensions :: !Int, getOrthants :: !(Orthant i a) }
+data Orthant i a = Orthant !(i (a, Orthant i a)) | Nil
