@@ -3,7 +3,6 @@ module Image.Rendering where
 import Control.Monad
 import Data.ByteString hiding (length)
 import Data.ByteString.Internal (c2w)
-import Data.Monoid
 import Image.Colour
 
 type Sample = Colour
