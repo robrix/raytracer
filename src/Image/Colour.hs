@@ -1,13 +1,21 @@
-module Image.Colour where
+module Image.Colour
+( Colour(..)
+, clear
+, Point(..)
+, V4(..)
+) where
 
-data Colour = Colour !Float !Float !Float !Float
+import Linear.Affine
+import Linear.V4 as Linear
+import Linear.Vector
+
+newtype Colour = Colour (Point V4 Float)
 
 clear :: Colour
-clear = Colour 0 0 0 0
+clear = Colour . P $ V4 0 0 0 0
 
 instance Semigroup Colour where
-  Colour r1 g1 b1 a1 <> Colour r2 g2 b2 a2 = Colour (r1 + r2) (g1 + g2) (b1 + b2) (a1 + a2)
-
+  Colour (P v1) <> Colour (P v2) = Colour (P (v1 ^+^ v2))
 
 instance Monoid Colour where
   mempty = clear
