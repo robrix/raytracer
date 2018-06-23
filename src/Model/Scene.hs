@@ -26,9 +26,9 @@ trace 0 _ _ = zero
 trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
   [] -> zero
   Intersection _ normal : _ -> P (V4
-    (min (abs (_x `dot` normal)) 255)
-    (min (abs (_y `dot` normal)) 255)
-    (min (abs (_z `dot` normal)) 255)
+    (abs (_x `dot` normal))
+    (abs (_y `dot` normal))
+    (abs (_z `dot` normal))
     (d `dot` normal))
   where _x = V3 1 0 0
         _y = V3 0 1 0
