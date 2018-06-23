@@ -2,7 +2,7 @@ module Image.Rendering where
 
 import Control.Lens
 import Data.ByteString hiding (length, map)
-import Data.ByteString.Internal (c2w)
+import qualified Data.ByteString.Char8 as C8
 import Data.Foldable (toList)
 import Linear.Affine
 import Linear.V4
@@ -21,8 +21,8 @@ getWidth (Rendering []) = 0
 getWidth (Rendering (row : _)) = length row
 
 toPPM :: RealFrac a => Rendering a -> ByteString
-toPPM r = pack header <> pack (pixels r >>= (>>= pixelToWords))
-  where header = c2w <$> "P6 " ++ show (getWidth r) ++ " " ++ show (getHeight r) ++ " 255\n"
+toPPM r = C8.pack header <> pack (pixels r >>= (>>= pixelToWords))
+  where header = "P6 " ++ show (getWidth r) ++ " " ++ show (getHeight r) ++ " 255\n"
         pixelToWords p = let P v = average p in map componentToWord (toList (v ^. _xyz))
         componentToWord c = max 0 $ min 255 $ round (c * 255)
 
