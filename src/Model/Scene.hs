@@ -7,9 +7,15 @@ import Geometry.Sphere
 import Image.Rendering
 import Linear.Affine
 import Linear.Metric
+import Linear.V2
 import Linear.V3
 import Linear.V4
 import Linear.Vector
+
+data Octree a
+  = Empty
+  | Leaf a
+  | Octree (V2 (V2 (V2 (Octree a))))
 
 newtype Scene a = Scene (Sphere a)
 
