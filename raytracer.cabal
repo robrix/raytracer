@@ -15,8 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Data.Orthtree
-                     , Geometry.Path
+  exposed-modules:     Geometry.Path
                      , Geometry.Ray
                      , Geometry.Sphere
                      , Image.Rendering
