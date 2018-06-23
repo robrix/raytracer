@@ -19,7 +19,6 @@ library
                      , Geometry.Path
                      , Geometry.Ray
                      , Geometry.Sphere
-                     , Image.Colour
                      , Image.Rendering
                      , Model.Scene
   build-depends:       base >= 4.7 && < 5
