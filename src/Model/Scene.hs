@@ -30,8 +30,9 @@ data Size = Size { width :: {-# UNPACK #-} !Int, height :: {-# UNPACK #-} !Int}
 
 render :: RealFloat a => Size -> Scene a -> Rendering a
 render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trace 8 scene)) rays
-  where row y = [ Ray (P (V3 (fromIntegral x) (fromIntegral y) 0)) (V3 0 0 1) | x <- [-width size `div` 2..width size `div` 2] ]
-        rays = row <$> [-height size `div` 2..height size `div` 2]
+  where rays = [ [ Ray (P (V3 (fromIntegral x) (fromIntegral y) 0)) (V3 0 0 1)
+                 | x <- [-width  size `div` 2..width  size `div` 2] ]
+               |   y <- [-height size `div` 2..height size `div` 2] ]
 
 
 renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
