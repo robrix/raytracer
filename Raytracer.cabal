@@ -49,6 +49,7 @@ test-suite Raytracer-test
                      , Geometry.Vector.Spec
   build-depends:       base
                      , hspec
+                     , linear
                      , QuickCheck
                      , Raytracer
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
