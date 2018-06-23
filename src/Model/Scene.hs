@@ -9,7 +9,7 @@ import Linear.V3
 
 data Scene a = Scene (Sphere a)
 
-trace :: Int -> Scene Float -> Ray Float -> Sample
+trace :: RealFloat a => Int -> Scene a -> Ray a -> Sample a
 trace 0 _ _ = clear
 trace n (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
   [] -> clear

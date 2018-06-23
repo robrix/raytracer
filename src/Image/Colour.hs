@@ -9,14 +9,14 @@ import Linear.Affine
 import Linear.V4 as Linear
 import Linear.Vector
 
-newtype Colour = Colour (Point V4 Float)
+newtype Colour a = Colour (Point V4 a)
 
-clear :: Colour
-clear = Colour . P $ V4 0 0 0 0
+clear :: Num a => Colour a
+clear = Colour zero
 
-instance Semigroup Colour where
-  Colour (P v1) <> Colour (P v2) = Colour (P (v1 ^+^ v2))
+instance Num a => Semigroup (Colour a) where
+  Colour p1 <> Colour p2 = Colour (p1 ^+^ p2)
 
-instance Monoid Colour where
+instance Num a => Monoid (Colour a) where
   mempty = clear
   mappend = (<>)
