@@ -15,7 +15,7 @@ import Linear.Vector
 data Octree a
   = Empty
   | Leaf a
-  | Octree (V2 (V2 (V2 (Octree a))))
+  | XYZ (V2 (V2 (V2 (Octree a))))
 
 newtype Scene a = Scene (Sphere a)
 
