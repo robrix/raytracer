@@ -1,7 +1,6 @@
 module Image.Rendering where
 
 import Control.Lens
-import Control.Monad
 import Data.ByteString hiding (length, map)
 import Data.ByteString.Internal (c2w)
 import Data.Foldable (toList)
@@ -22,7 +21,7 @@ getWidth (Rendering []) = 0
 getWidth (Rendering (row : _)) = length row
 
 toPPM :: RealFrac a => Rendering a -> ByteString
-toPPM r = pack header <> pack (join (fmap (join . fmap pixelToWords) (pixels r)))
+toPPM r = pack header <> pack (pixels r >>= (>>= pixelToWords))
   where header = c2w <$> "P6 " ++ show (getWidth r) ++ " " ++ show (getHeight r) ++ " 255\n"
         pixelToWords p = let P v = average p in map componentToWord (toList (v ^. _xyz))
         componentToWord c = max 0 $ min 255 $ round (c * 255)
