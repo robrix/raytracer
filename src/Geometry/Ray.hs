@@ -29,5 +29,5 @@ intersectionsWithSphere (Ray origin direction) (Sphere centre radius) = if discr
         c = tx ** 2 + ty ** 2 + tz ** 2 - radius ** 2
         translated@(P (V3 tx ty tz)) = origin - centre
         discriminant = b ** 2 - 4 * c
-        atDistance d = Intersection intersection (unP (intersection - centre) / V3 radius radius radius)
-          where intersection = origin + P direction * P (V3 d d d)
+        atDistance d = Intersection intersection (unP (intersection - centre) ^/ radius)
+          where intersection = origin + P direction ^* d
