@@ -41,6 +41,5 @@ render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure .
                  | x <- [0..pred (width  size)] ]
                  | y <- [0..pred (height size)] ]
 
-
 renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
 renderToFile size path = ByteString.writeFile path . toPPM . render size
