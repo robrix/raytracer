@@ -26,13 +26,13 @@ trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere o
         _y = V3 0 1 0
         _z = V3 0 0 1
 
-render :: (Enum a, RealFloat a) => Scene a -> Rendering a
-render scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trace 8 scene)) rays
-  where width = 800
-        height = 600
-        row y = [ Ray (P (V3 x y 0)) (V3 0 0 1) | x <- [-width / 2..width / 2] ]
-        rays = row <$> [-height / 2..height / 2]
+data Size = Size { width :: {-# UNPACK #-} !Int, height :: {-# UNPACK #-} !Int}
+
+render :: RealFloat a => Size -> Scene a -> Rendering a
+render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trace 8 scene)) rays
+  where row y = [ Ray (P (V3 (fromIntegral x) (fromIntegral y) 0)) (V3 0 0 1) | x <- [-width size `div` 2..width size `div` 2] ]
+        rays = row <$> [-height size `div` 2..height size `div` 2]
 
 
-renderToFile :: (Enum a, RealFloat a) => FilePath -> Scene a -> IO ()
-renderToFile path = ByteString.writeFile path . toPPM . render
+renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
+renderToFile size path = ByteString.writeFile path . toPPM . render size
