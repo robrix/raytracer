@@ -19,7 +19,6 @@ library
                      , Geometry.Path
                      , Geometry.Ray
                      , Geometry.Sphere
-                     , Geometry.Vector
                      , Image.Colour
                      , Image.Rendering
                      , Model.Scene
@@ -47,7 +46,6 @@ test-suite Raytracer-test
   hs-source-dirs:      test
   main-is:             Spec.hs
   other-modules:       Geometry.Ray.Spec
-                     , Geometry.Vector.Spec
   build-depends:       base
                      , hspec
                      , linear
