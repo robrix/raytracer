@@ -23,6 +23,7 @@ library
                      , Model.Scene
   build-depends:       base >= 4.7 && < 5
                      , bytestring
+                     , lens
                      , linear
                      , parallel
                      , probability
