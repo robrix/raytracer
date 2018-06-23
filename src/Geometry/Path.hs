@@ -2,4 +2,4 @@ module Geometry.Path where
 
 import Geometry.Ray
 
-newtype Path = Path [Intersection]
+newtype Path a = Path [Intersection a]

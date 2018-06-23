@@ -1,5 +1,9 @@
 module Geometry.Sphere where
 
-import Geometry.Vector
+import Linear.Affine
+import Linear.V3
 
-data Sphere = Sphere { getCentre :: !Vector, getRadius :: !Float }
+data Sphere a = Sphere
+  { sphereCentre :: !(Point V3 a)
+  , sphereRadius :: !a
+  }
