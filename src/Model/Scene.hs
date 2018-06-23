@@ -13,7 +13,7 @@ data Scene a = Scene (Sphere a)
 
 trace :: RealFloat a => Int -> Scene a -> Ray a -> Sample a
 trace 0 _ _ = clear
-trace n (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
+trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
   [] -> clear
   (Intersection _ normal : _) ->
     Colour (P (V4 (min (abs (_x `dot` normal)) 255) (min (abs (_y `dot` normal)) 255) (min (abs (_z `dot` normal)) 255) (d `dot` normal)))
