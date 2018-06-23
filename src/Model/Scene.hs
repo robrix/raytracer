@@ -1,7 +1,7 @@
 module Model.Scene where
 
 import Control.Parallel.Strategies hiding (dot)
-import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Lazy as Lazy
 import Geometry.Ray
 import Geometry.Sphere
 import Image.Rendering
@@ -42,4 +42,4 @@ render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure .
                  | y <- [0..pred (height size)] ]
 
 renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
-renderToFile size path = ByteString.writeFile path . toPPM . render size
+renderToFile size path = Lazy.writeFile path . toPPM . render size

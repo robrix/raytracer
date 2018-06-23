@@ -1,9 +1,9 @@
 module Image.Rendering where
 
 import Control.Lens
-import Data.ByteString hiding (length, map)
-import qualified Data.ByteString.Char8 as C8
-import Data.Foldable (toList)
+import qualified Data.ByteString.Lazy as Lazy
+import qualified Data.ByteString.Builder as B
+import Data.List (intersperse)
 import Linear.Affine
 import Linear.V4
 import Linear.Vector
@@ -20,11 +20,13 @@ getWidth :: Rendering a -> Int
 getWidth (Rendering []) = 0
 getWidth (Rendering (row : _)) = length row
 
-toPPM :: RealFrac a => Rendering a -> ByteString
-toPPM r = C8.pack header <> pack (pixels r >>= (>>= pixelToWords))
-  where header = "P6 " ++ show (getWidth r) ++ " " ++ show (getHeight r) ++ " 255\n"
-        pixelToWords p = let P v = average p in map componentToWord (toList (v ^. _xyz))
-        componentToWord c = max 0 $ min 255 $ round (c * 255)
+toPPM :: RealFrac a => Rendering a -> Lazy.ByteString
+toPPM r = B.toLazyByteString $ header <> encodeRows (pixels r) -- pack (pixels r >>= (>>= pixelToWords))
+  where header = foldMap B.string7 (intersperse " " ["P6", show (getWidth r), "", show (getHeight r), "255\n"])
+        encodeRows = foldMap encodeRow
+        encodeRow = foldMap encodeSamples
+        encodeSamples = encodeSample . average
+        encodeSample = foldMap (B.word8 . max 0 . min 255 . round) . view _xyz . (* 255)
 
 average :: Fractional a => Pixel a -> Sample a
 average p = getAdd (foldMap Add p) ^/ fromIntegral (length p)
