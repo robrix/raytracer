@@ -12,6 +12,7 @@ import Linear.V3
 import Linear.V4
 import Linear.Vector
 
+-- | Sparse 8-tree representation for efficiently storing and querying scenes.
 data Octree a
   = Empty
   | Leaf a
