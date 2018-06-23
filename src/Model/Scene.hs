@@ -44,4 +44,4 @@ render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure .
 
 renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
 renderToFile size path scene = withFile path WriteMode
-  (\ handle -> B.hPutBuilder handle (toPPM8 (render size scene)))
+  (\ handle -> B.hPutBuilder handle (toPPM16 (render size scene)))
