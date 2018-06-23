@@ -1,5 +1,6 @@
 module Model.Scene where
 
+import Control.Parallel.Strategies hiding (dot)
 import Geometry.Ray
 import Geometry.Sphere
 import Image.Colour
@@ -18,3 +19,10 @@ trace n (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere o
   where _x = V3 1 0 0
         _y = V3 0 1 0
         _z = V3 0 0 1
+
+render :: (Enum a, RealFloat a) => Scene a -> Rendering a
+render scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trace 8 scene)) rays
+  where width = 800
+        height = 600
+        row y = [ Ray (P (V3 x y 0)) (V3 0 0 1) | x <- [-width / 2..width / 2] ]
+        rays = row <$> [-height / 2..height / 2]
