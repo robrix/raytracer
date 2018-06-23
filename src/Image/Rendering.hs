@@ -4,6 +4,7 @@ import Control.Monad
 import Data.ByteString hiding (length)
 import Data.ByteString.Internal (c2w)
 import Image.Colour
+import Linear.Vector
 
 type Sample a = Colour a
 type Pixel a = [Sample a]
@@ -26,3 +27,12 @@ toPPM r = pack header <> pack (join (fmap (join . fmap pixelToWords) (getPixels 
 average :: Fractional a => Pixel a -> Colour a
 average p = case mconcat p of Colour (P (V4 r g b a)) -> Colour (P (V4 (r / l) (g / l) (b / l) (a / l)))
   where l = fromIntegral (length p)
+
+newtype Add f a = Add { getAdd :: f a }
+
+instance (Additive f, Num a) => Semigroup (Add f a) where
+  Add f1 <> Add f2 = Add (f1 ^+^ f2)
+
+instance (Additive f, Num a) => Monoid (Add f a) where
+  mempty = Add zero
+  mappend = (<>)
