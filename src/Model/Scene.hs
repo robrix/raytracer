@@ -1,6 +1,7 @@
 module Model.Scene where
 
 import Control.Parallel.Strategies hiding (dot)
+import qualified Data.ByteString as ByteString
 import Geometry.Ray
 import Geometry.Sphere
 import Image.Colour
@@ -26,3 +27,7 @@ render scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trac
         height = 600
         row y = [ Ray (P (V3 x y 0)) (V3 0 0 1) | x <- [-width / 2..width / 2] ]
         rays = row <$> [-height / 2..height / 2]
+
+
+renderToFile :: (Enum a, RealFloat a) => FilePath -> Scene a -> IO ()
+renderToFile path = ByteString.writeFile path . toPPM . render

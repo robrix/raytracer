@@ -13,4 +13,4 @@ import System.Environment
 main :: IO ()
 main = do
   [path] <- getArgs
-  ByteString.writeFile path . toPPM . render $ Scene Sphere { getCentre = Vector 0 0 10, getRadius = 250 }
+  renderToFile path (Scene (Sphere (P (V3 0 0 10)) 250))
