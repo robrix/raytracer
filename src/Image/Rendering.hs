@@ -20,7 +20,7 @@ renderingWidth (Rendering []) = 0
 renderingWidth (Rendering (row : _)) = length row
 
 toPPM :: RealFrac a => Rendering a -> B.Builder
-toPPM r = header <> encodeRows (pixels r) -- pack (pixels r >>= (>>= pixelToWords))
+toPPM r = header <> encodeRows (pixels r)
   where header = foldMap B.string7 (intersperse " " ["P6", show (renderingWidth r), "", show (renderingHeight r), "255\n"])
         encodeRows = foldMap encodeRow
         encodeRow = foldMap encodeSamples
