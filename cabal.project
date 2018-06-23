@@ -1,5 +1,5 @@
-packages: Raytracer.cabal
+packages: raytracer.cabal
 optional-packages: vendor/*/*.cabal
 jobs: $ncpus
-package Raytracer
+package raytracer
   ghc-options: -Weverything -Wno-missing-local-signatures -Wno-missing-import-lists -Wno-missing-export-lists -Wno-implicit-prelude -Wno-safe -Wno-unsafe -Wno-name-shadowing -Wno-monomorphism-restriction -Wno-missed-specialisations -Wno-all-missed-specialisations -Werror
