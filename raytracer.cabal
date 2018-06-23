@@ -1,13 +1,13 @@
 name:                raytracer
 version:             0.1.0.0
-synopsis:            Initial project template from stack
-description:         Please see README.md
+synopsis:            An experimental raytracer
+-- description:         Please see README.md
 homepage:            http://github.com/robrix/raytracer#readme
 license:             BSD3
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2010 Author Here
+author:              Rob Rix
+maintainer:          rob.rix@me.com
+copyright:           2016-2018 Rob Rix
 category:            Web
 build-type:          Simple
 -- extra-source-files:
