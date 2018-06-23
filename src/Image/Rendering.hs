@@ -12,16 +12,16 @@ type Pixel a = [Sample a]
 
 newtype Rendering a = Rendering { pixels :: [[Pixel a]] }
 
-getHeight :: Rendering a -> Int
-getHeight = length . pixels
+renderingHeight :: Rendering a -> Int
+renderingHeight = length . pixels
 
-getWidth :: Rendering a -> Int
-getWidth (Rendering []) = 0
-getWidth (Rendering (row : _)) = length row
+renderingWidth :: Rendering a -> Int
+renderingWidth (Rendering []) = 0
+renderingWidth (Rendering (row : _)) = length row
 
 toPPM :: RealFrac a => Rendering a -> B.Builder
 toPPM r = header <> encodeRows (pixels r) -- pack (pixels r >>= (>>= pixelToWords))
-  where header = foldMap B.string7 (intersperse " " ["P6", show (getWidth r), "", show (getHeight r), "255\n"])
+  where header = foldMap B.string7 (intersperse " " ["P6", show (renderingWidth r), "", show (renderingHeight r), "255\n"])
         encodeRows = foldMap encodeRow
         encodeRow = foldMap encodeSamples
         encodeSamples = encodeSample . average
