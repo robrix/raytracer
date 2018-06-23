@@ -11,7 +11,7 @@ import Linear.V3
 import Linear.V4
 import Linear.Vector
 
-data Scene a = Scene (Sphere a)
+newtype Scene a = Scene (Sphere a)
 
 trace :: RealFloat a => Int -> Scene a -> Ray a -> Sample a
 trace 0 _ _ = zero
