@@ -1,7 +1,7 @@
 module Model.Scene where
 
 import Control.Parallel.Strategies hiding (dot)
-import qualified Data.ByteString.Lazy as Lazy
+import qualified Data.ByteString.Builder as B
 import Geometry.Ray
 import Geometry.Sphere
 import Image.Rendering
@@ -11,6 +11,7 @@ import Linear.V2
 import Linear.V3
 import Linear.V4
 import Linear.Vector
+import System.IO
 
 -- | Sparse 8-tree representation for efficiently storing and querying scenes.
 data Octree a
@@ -42,4 +43,5 @@ render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure .
                  | y <- [0..pred (height size)] ]
 
 renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
-renderToFile size path = Lazy.writeFile path . toPPM . render size
+renderToFile size path scene = withFile path WriteMode
+  (\ handle -> B.hPutBuilder handle (toPPM (render size scene)))

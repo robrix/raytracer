@@ -1,7 +1,6 @@
 module Image.Rendering where
 
 import Control.Lens
-import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.ByteString.Builder as B
 import Data.List (intersperse)
 import Linear.Affine
@@ -20,8 +19,8 @@ getWidth :: Rendering a -> Int
 getWidth (Rendering []) = 0
 getWidth (Rendering (row : _)) = length row
 
-toPPM :: RealFrac a => Rendering a -> Lazy.ByteString
-toPPM r = B.toLazyByteString $ header <> encodeRows (pixels r) -- pack (pixels r >>= (>>= pixelToWords))
+toPPM :: RealFrac a => Rendering a -> B.Builder
+toPPM r = header <> encodeRows (pixels r) -- pack (pixels r >>= (>>= pixelToWords))
   where header = foldMap B.string7 (intersperse " " ["P6", show (getWidth r), "", show (getHeight r), "255\n"])
         encodeRows = foldMap encodeRow
         encodeRow = foldMap encodeSamples
