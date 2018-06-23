@@ -26,9 +26,7 @@ toPPM r = pack header <> pack (join (fmap (join . fmap pixelToWords) (getPixels 
         componentToWord c = max 0 $ min 255 $ round (c * 255)
 
 average :: Fractional a => Pixel a -> Sample a
-average p = P (V4 (r / l) (g / l) (b / l) (a / l))
-  where P (V4 r g b a) = getAdd $ foldMap Add p
-        l = fromIntegral (length p)
+average p = getAdd (foldMap Add p) ^/ fromIntegral (length p)
 
 newtype Add f a = Add { getAdd :: f a }
 
