@@ -4,9 +4,10 @@ import Control.Parallel.Strategies hiding (dot)
 import qualified Data.ByteString as ByteString
 import Geometry.Ray
 import Geometry.Sphere
-import Geometry.Vector
 import Image.Colour
 import Image.Rendering
+import Linear.Affine
+import Linear.V3
 import Model.Scene
 import System.Environment
 
