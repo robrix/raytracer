@@ -44,3 +44,7 @@ instance Num a => Num (Distribution num a) where
   signum = fmap signum
   fromInteger = pure . fromInteger
   negate = fmap negate
+
+instance Fractional a => Fractional (Distribution num a) where
+  fromRational = pure . fromRational
+  recip = fmap recip
