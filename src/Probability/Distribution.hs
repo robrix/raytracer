@@ -65,3 +65,7 @@ instance Floating a => Floating (Distribution num a) where
   asinh = fmap asinh
   acosh = fmap acosh
   atanh = fmap atanh
+
+instance Bounded a => Bounded (Distribution num a) where
+  minBound = pure minBound
+  maxBound = pure maxBound
