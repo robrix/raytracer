@@ -16,13 +16,9 @@ newtype Rendering a = Rendering { pixels :: [[Pixel a]] }
 
 renderingSize :: Rendering a -> Size
 renderingSize = Size . renderingWidth <*> renderingHeight
-
-renderingHeight :: Rendering a -> Int
-renderingHeight = length . pixels
-
-renderingWidth :: Rendering a -> Int
-renderingWidth (Rendering []) = 0
-renderingWidth (Rendering (row : _)) = length row
+  where renderingWidth (Rendering []) = 0
+        renderingWidth (Rendering (row : _)) = length row
+        renderingHeight = length . pixels
 
 data Depth = Depth8 | Depth16
 
