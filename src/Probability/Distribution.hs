@@ -16,6 +16,9 @@ data Distribution num a where
 
 infixl 1 :>>=
 
+unit :: Num num => Distribution num num
+unit = StdRandomR 0 1
+
 sample :: (MonadRandom m, Random num) => Distribution num a -> m a
 sample StdRandom = getRandom
 sample (StdRandomR from to) = getRandomR (from, to)
