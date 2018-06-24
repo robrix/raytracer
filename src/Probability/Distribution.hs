@@ -1,6 +1,7 @@
 {-# LANGUAGE GADTs #-}
 module Probability.Distribution where
 
+import Control.Applicative
 import Control.Monad ((>=>))
 
 data Distribution num a where
@@ -28,3 +29,6 @@ instance Monad (Distribution num) where
   Pure a     >>= f = f a
   (r :>>= k) >>= f = r :>>= (k >=> f)
   a          >>= f = a :>>= f
+
+instance Semigroup a => Semigroup (Distribution num a) where
+  (<>) = liftA2 (<>)
