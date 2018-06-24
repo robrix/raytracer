@@ -20,7 +20,8 @@ library
                      , Image.Rendering
                      , Model.Scene
                      , Probability.Distribution
-  build-depends:       base >= 4.7 && < 5
+  build-depends:       array
+                     , base >= 4.7 && < 5
                      , bytestring
                      , lens
                      , linear
