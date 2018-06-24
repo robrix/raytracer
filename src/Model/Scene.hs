@@ -37,10 +37,7 @@ trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere o
 
 render :: RealFloat a => Size -> Scene a -> Rendering a
 render size@(V2 w h) scene = Rendering (array (0, size) (rays `using` parList (evalTuple2 r0 rpar)))
-  where rays = [ (V2 x y, Pixel [trace 8 scene (Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) 0)) (unit _z))])
-               | y <- [0..pred h]
-               , x <- [0..pred w]
-               ]
+  where rays = rowMajor size (\ x y -> (V2 x y, Pixel [trace 8 scene (Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) 0)) (unit _z))]))
 
 renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
 renderToFile size path scene = withFile path WriteMode
