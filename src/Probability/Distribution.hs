@@ -80,9 +80,9 @@ samples n = replicateM n . sample
 histogram :: Real a => [a] -> [a] -> [Int]
 histogram []      _       = []
 histogram _       []      = []
-histogram buckets samples = map fst (foldl' combine (map ((,) 0) buckets) samples)
-  where combine :: Real a => [(Int, a)] -> a -> [(Int, a)]
-        combine accum sample = foldr (\ each rest -> case each of
+histogram buckets samples = map fst (foldl' bucketSample (map ((,) 0) buckets) samples)
+  where bucketSample :: Real a => [(Int, a)] -> a -> [(Int, a)]
+        bucketSample accum sample = foldr (\ each rest -> case each of
           (count, from)
             | ((_, to) : _) <- rest
             , from   <= sample
