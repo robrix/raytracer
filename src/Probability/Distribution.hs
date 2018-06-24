@@ -81,8 +81,7 @@ histogram :: Real a => [a] -> [a] -> [Int]
 histogram []      _       = []
 histogram _       []      = []
 histogram buckets samples = map fst (foldl' bucketSample (map ((,) 0) buckets) samples)
-  where bucketSample :: Real a => [(Int, a)] -> a -> [(Int, a)]
-        bucketSample accum sample = foldr (\ each rest -> case each of
+  where bucketSample accum sample = foldr (\ each rest -> case each of
           (count, from)
             | ((_, to) : _) <- rest
             , from   <= sample
