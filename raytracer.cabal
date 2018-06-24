@@ -26,6 +26,7 @@ library
                      , linear
                      , MonadRandom
                      , parallel
+                     , random
   default-language:    Haskell2010
 
 executable raytracer
