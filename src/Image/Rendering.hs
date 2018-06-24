@@ -1,6 +1,7 @@
 module Image.Rendering where
 
 import Control.Lens
+import Data.Array
 import qualified Data.ByteString.Builder as B
 import Data.List (intersperse)
 import Linear.Affine
@@ -17,22 +18,22 @@ width, height :: Size -> Int
 width  (V2 w _) = w
 height (V2 _ h) = h
 
-newtype Rendering a = Rendering { pixels :: [[Pixel a]] }
+newtype Rendering a = Rendering { pixels :: Array Size (Pixel a) }
 
 renderingSize :: Rendering a -> Size
-renderingSize = V2 . renderingWidth <*> renderingHeight
-  where renderingWidth (Rendering []) = 0
-        renderingWidth (Rendering (row : _)) = length row
-        renderingHeight = length . pixels
+renderingSize = snd . bounds . pixels
 
 data Depth = Depth8 | Depth16
 
 toPPM :: RealFrac a => Depth -> Rendering a -> B.Builder
-toPPM depth r = header <> encodeRows (pixels r)
+toPPM depth r = header <> encodePixels (pixels r)
   where header = foldMap B.string7 (intersperse " " ["P6", show w, "", show h, case depth of { Depth8 -> "255\n" ; Depth16 -> "65535\n" }])
-        encodeRows = foldMap encodeRow
-        encodeRow = foldMap encodeSamples
-        encodeSamples = encodeSample . average
+        encodePixels pixels = mconcat
+          [ encodePixel (pixels ! V2 x y)
+          | x <- [0..pred w]
+          , y <- [0..pred h]
+          ]
+        encodePixel = encodeSample . average
         encodeSample = case depth of
           Depth8 -> foldMap (B.word8 . max 0 . min 255 . round) . view _xyz . (* 255)
           Depth16 -> foldMap (B.word16BE . max 0 . min 65535 . round) . view _xyz . (* 65535)

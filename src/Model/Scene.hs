@@ -1,6 +1,7 @@
 module Model.Scene where
 
-import Control.Parallel.Strategies hiding (dot)
+import Control.Parallel.Strategies (evalTuple2, parList, r0, rpar, withStrategy)
+import Data.Array
 import qualified Data.ByteString.Builder as B
 import Geometry.Ray
 import Geometry.Sphere
@@ -35,10 +36,10 @@ trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere o
         z = unit _z
 
 render :: RealFloat a => Size -> Scene a -> Rendering a
-render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (Pixel . pure . trace 8 scene)) rays
-  where rays = [ [ Ray (P (V3 (fromIntegral (width size `div` 2 - x)) (fromIntegral (height size `div` 2 - y)) 0)) (V3 0 0 1)
-                 | x <- [0..pred (width  size)] ]
-                 | y <- [0..pred (height size)] ]
+render size@(V2 w h) scene = Rendering . array (0, size) . withStrategy (parList (evalTuple2 r0 rpar)) $ fmap (fmap (Pixel . pure . trace 8 scene)) rays
+  where rays = [ (V2 x y, Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) 0)) (unit _z))
+               | x <- [0..pred w]
+               , y <- [0..pred h] ]
 
 renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
 renderToFile size path scene = withFile path WriteMode
