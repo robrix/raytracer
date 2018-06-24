@@ -14,6 +14,9 @@ data Size = Size { width :: {-# UNPACK #-} !Int, height :: {-# UNPACK #-} !Int }
 
 newtype Rendering a = Rendering { pixels :: [[Pixel a]] }
 
+renderingSize :: Rendering a -> Size
+renderingSize = Size . renderingWidth <*> renderingHeight
+
 renderingHeight :: Rendering a -> Int
 renderingHeight = length . pixels
 
