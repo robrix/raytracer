@@ -3,6 +3,8 @@ module Probability.Distribution where
 
 import Control.Applicative
 import Control.Monad ((>=>))
+import Control.Monad.Random.Class
+import System.Random
 
 data Distribution num a where
   StdRandom :: Distribution num num
@@ -12,6 +14,13 @@ data Distribution num a where
   (:>>=) :: Distribution num b -> (b -> Distribution num a) -> Distribution num a
 
 infixl 1 :>>=
+
+sample :: (MonadRandom m, Random num) => Distribution num a -> m a
+sample StdRandom = getRandom
+sample (Let v f) = sample (f (Pure v))
+sample (Pure a) = pure a
+sample (a :>>= f) = sample a >>= sample . f
+
 
 instance Functor (Distribution num) where
   fmap f (Pure a)   = Pure (f a)
