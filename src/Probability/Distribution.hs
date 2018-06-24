@@ -12,8 +12,8 @@ import Prelude hiding (id)
 import System.Random (Random(..))
 
 data Distribution a where
-  StdRandom  :: Random a => Distribution a
-  StdRandomR :: Random a => a -> a -> Distribution a
+  Uniform  :: Random a => Distribution a
+  UniformR :: Random a => a -> a -> Distribution a
   Let :: a -> (Distribution a -> Distribution a) -> Distribution a
 
   Pure :: a -> Distribution a
@@ -37,14 +37,14 @@ apply q a = case tviewl q of
 -- Constructors
 
 unit :: (Num a, Random a) => Distribution a
-unit = StdRandomR 0 1
+unit = UniformR 0 1
 
 exponential :: (Floating a, Random a) => Distribution a
-exponential = negate (log StdRandom)
+exponential = negate (log Uniform)
 
 listOf :: Distribution a -> Distribution [a]
 listOf element = do
-  n <- StdRandomR 0 10 :: Distribution Int
+  n <- UniformR 0 10 :: Distribution Int
   listOfN n element
 
 listOfN :: Int -> Distribution a -> Distribution [a]
@@ -53,7 +53,7 @@ listOfN n element | n > 0 = (:) <$> element <*> listOfN (pred n) element
 
 frequency :: [(Int, Distribution a)] -> Distribution a
 frequency [] = error "frequency called with empty list"
-frequency choices = (StdRandomR 0 total :: Distribution Int) >>= pick sorted
+frequency choices = (UniformR 0 total :: Distribution Int) >>= pick sorted
   where total = sum (fst <$> sorted)
         sorted = reverse (sortOn fst choices)
         pick ((i, a) : rest) n
@@ -65,8 +65,8 @@ frequency choices = (StdRandomR 0 total :: Distribution Int) >>= pick sorted
 -- Eliminators
 
 sample :: MonadRandom m => Distribution a -> m a
-sample StdRandom = getRandom
-sample (StdRandomR from to) = getRandomR (from, to)
+sample Uniform = getRandom
+sample (UniformR from to) = getRandomR (from, to)
 sample (Let v f) = sample (f (Pure v))
 sample (Pure a) = pure a
 sample (a :>>= q) = sample a >>= sample . apply q
