@@ -6,7 +6,7 @@ import Data.List (sort)
 import Geometry.Sphere
 import Linear.Affine
 import Linear.V3
-import Linear.Vector
+import Linear.Vector ((^*), (^/))
 
 data Ray a = Ray
   { origin    :: !(Point V3 a)
