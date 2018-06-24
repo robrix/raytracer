@@ -23,6 +23,9 @@ infixl 1 :>>=
 unit :: (Num a, Random a) => Distribution a
 unit = StdRandomR 0 1
 
+exponential :: (Floating a, Random a) => Distribution a
+exponential = negate (log StdRandom)
+
 listOf :: Distribution a -> Distribution [a]
 listOf element = do
   n <- StdRandomR 0 10 :: Distribution Int
