@@ -8,6 +8,7 @@ import System.Random
 
 data Distribution num a where
   StdRandom :: Distribution num num
+  StdRandomR :: num -> num -> Distribution num num
   Let :: a -> (Distribution num a -> Distribution num a) -> Distribution num a
 
   Pure :: a -> Distribution num a
@@ -17,6 +18,7 @@ infixl 1 :>>=
 
 sample :: (MonadRandom m, Random num) => Distribution num a -> m a
 sample StdRandom = getRandom
+sample (StdRandomR from to) = getRandomR (from, to)
 sample (Let v f) = sample (f (Pure v))
 sample (Pure a) = pure a
 sample (a :>>= f) = sample a >>= sample . f
