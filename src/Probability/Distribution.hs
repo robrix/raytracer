@@ -5,6 +5,7 @@ import Control.Applicative (liftA2)
 import Control.Category ((>>>), id)
 import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class (MonadRandom(..))
+import Data.Foldable (foldl')
 import Data.List (partition, sortOn)
 import Data.TASequence.BinaryTree (BinaryTree, TASequence(..), TAViewL(..))
 import Prelude hiding (id)
@@ -75,6 +76,17 @@ samples n = replicateM n . sample
 
 
 -- Inspection
+
+histogram :: Real a => [a] -> [a] -> [Int]
+histogram []      _       = []
+histogram _       []      = []
+histogram buckets samples = map fst (foldl' combine (map ((,) 0) buckets) samples)
+  where combine :: Real a => [(Int, a)] -> a -> [(Int, a)]
+        combine accum sample = foldr (\ each rest -> case (each, rest) of
+          ((count, from), ((_, to) : _))
+            | from <= sample, sample <= to -> (succ count, to) : rest
+            | otherwise                    -> (     count, to) : rest
+          _ -> []) [] accum
 
 histogramFrom :: Real a => a -> a -> [a] -> [Int]
 histogramFrom from width samples
