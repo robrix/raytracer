@@ -6,68 +6,68 @@ import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class
 import System.Random
 
-data Distribution num a where
-  StdRandom :: Distribution num num
-  StdRandomR :: num -> num -> Distribution num num
-  Let :: a -> (Distribution num a -> Distribution num a) -> Distribution num a
+data Distribution a where
+  StdRandom  :: Random a => Distribution a
+  StdRandomR :: Random a => a -> a -> Distribution a
+  Let :: a -> (Distribution a -> Distribution a) -> Distribution a
 
-  Pure :: a -> Distribution num a
-  (:>>=) :: Distribution num b -> (b -> Distribution num a) -> Distribution num a
+  Pure :: a -> Distribution a
+  (:>>=) :: Distribution b -> (b -> Distribution a) -> Distribution a
 
 infixl 1 :>>=
 
 
 -- Constructors
 
-unit :: Num num => Distribution num num
+unit :: (Num a, Random a) => Distribution a
 unit = StdRandomR 0 1
 
-listOfN :: Int -> Distribution num a -> Distribution num [a]
+listOfN :: Int -> Distribution a -> Distribution [a]
 listOfN n element | n > 0 = (:) <$> element <*> listOfN (pred n) element
                   | otherwise = pure []
 
 
 -- Eliminators
 
-sample :: (MonadRandom m, Random num) => Distribution num a -> m a
+sample :: MonadRandom m => Distribution a -> m a
 sample StdRandom = getRandom
 sample (StdRandomR from to) = getRandomR (from, to)
 sample (Let v f) = sample (f (Pure v))
 sample (Pure a) = pure a
 sample (a :>>= f) = sample a >>= sample . f
 
-samples :: (MonadRandom m, Random num) => Int -> Distribution num a -> m [a]
+samples :: MonadRandom m => Int -> Distribution a -> m [a]
 samples n = replicateM n . sample
 
 
 -- Instances
 
-instance Functor (Distribution num) where
+instance Functor Distribution where
   fmap f (Pure a)   = Pure (f a)
   fmap f (r :>>= k) = r :>>= fmap f . k
   fmap f a          = a :>>= Pure . f
 
-instance Applicative (Distribution num) where
+instance Applicative Distribution where
   pure = Pure
 
   Pure f     <*> a = fmap f a
   (r :>>= k) <*> a = r :>>= ((<*> a) . k)
   f          <*> a = f :>>= (flip fmap a)
 
-instance Monad (Distribution num) where
+instance Monad Distribution where
   return = pure
   Pure a     >>= f = f a
   (r :>>= k) >>= f = r :>>= (k >=> f)
   a          >>= f = a :>>= f
 
-instance Semigroup a => Semigroup (Distribution num a) where
+instance Semigroup a => Semigroup (Distribution a) where
   (<>) = liftA2 (<>)
 
-instance Monoid a => Monoid (Distribution num a) where
+instance Monoid a => Monoid (Distribution a) where
   mempty = pure mempty
   mappend = (<>)
 
-instance Num a => Num (Distribution num a) where
+instance Num a => Num (Distribution a) where
   (+) = liftA2 (+)
   (*) = liftA2 (*)
   abs = fmap abs
@@ -75,11 +75,11 @@ instance Num a => Num (Distribution num a) where
   fromInteger = pure . fromInteger
   negate = fmap negate
 
-instance Fractional a => Fractional (Distribution num a) where
+instance Fractional a => Fractional (Distribution a) where
   fromRational = pure . fromRational
   recip = fmap recip
 
-instance Floating a => Floating (Distribution num a) where
+instance Floating a => Floating (Distribution a) where
   pi = pure pi
   exp = fmap exp
   log = fmap log
@@ -96,6 +96,6 @@ instance Floating a => Floating (Distribution num a) where
   acosh = fmap acosh
   atanh = fmap atanh
 
-instance Bounded a => Bounded (Distribution num a) where
+instance Bounded a => Bounded (Distribution a) where
   minBound = pure minBound
   maxBound = pure maxBound
