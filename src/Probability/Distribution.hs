@@ -21,6 +21,9 @@ sample (Let v f) = sample (f (Pure v))
 sample (Pure a) = pure a
 sample (a :>>= f) = sample a >>= sample . f
 
+samples :: (MonadRandom m, Random num) => Int -> Distribution num a -> m [a]
+samples n = sequenceA . replicate n . sample
+
 
 instance Functor (Distribution num) where
   fmap f (Pure a)   = Pure (f a)
