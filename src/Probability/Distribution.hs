@@ -16,8 +16,14 @@ data Distribution num a where
 
 infixl 1 :>>=
 
+
+-- Constructors
+
 unit :: Num num => Distribution num num
 unit = StdRandomR 0 1
+
+
+-- Eliminators
 
 sample :: (MonadRandom m, Random num) => Distribution num a -> m a
 sample StdRandom = getRandom
@@ -29,6 +35,8 @@ sample (a :>>= f) = sample a >>= sample . f
 samples :: (MonadRandom m, Random num) => Int -> Distribution num a -> m [a]
 samples n = replicateM n . sample
 
+
+-- Instances
 
 instance Functor (Distribution num) where
   fmap f (Pure a)   = Pure (f a)
