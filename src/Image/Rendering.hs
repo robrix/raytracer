@@ -8,7 +8,7 @@ import Linear.V4
 import Linear.Vector
 
 type Sample a = Point V4 a
-type Pixel a = [Sample a]
+newtype Pixel a = Pixel { samples :: [Sample a] }
 
 data Size = Size { width :: {-# UNPACK #-} !Int, height :: {-# UNPACK #-} !Int }
 
@@ -34,7 +34,7 @@ toPPM depth r = header <> encodeRows (pixels r)
         Size w h = renderingSize r
 
 average :: Fractional a => Pixel a -> Sample a
-average p = getAdd (foldMap Add p) ^/ fromIntegral (length p)
+average (Pixel p) = getAdd (foldMap Add p) ^/ fromIntegral (length p)
 
 newtype Add f a = Add { getAdd :: f a }
 

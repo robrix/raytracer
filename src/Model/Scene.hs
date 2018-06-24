@@ -35,7 +35,7 @@ trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere o
         z = unit _z
 
 render :: RealFloat a => Size -> Scene a -> Rendering a
-render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (pure . trace 8 scene)) rays
+render size scene = Rendering $ withStrategy (parList rpar) $ fmap (fmap (Pixel . pure . trace 8 scene)) rays
   where rays = [ [ Ray (P (V3 (fromIntegral (width size `div` 2 - x)) (fromIntegral (height size `div` 2 - y)) 0)) (V3 0 0 1)
                  | x <- [0..pred (width  size)] ]
                  | y <- [0..pred (height size)] ]
