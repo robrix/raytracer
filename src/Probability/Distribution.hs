@@ -22,6 +22,11 @@ infixl 1 :>>=
 unit :: (Num a, Random a) => Distribution a
 unit = StdRandomR 0 1
 
+listOf :: Distribution a -> Distribution [a]
+listOf element = do
+  n <- StdRandomR 0 10 :: Distribution Int
+  listOfN n element
+
 listOfN :: Int -> Distribution a -> Distribution [a]
 listOfN n element | n > 0 = (:) <$> element <*> listOfN (pred n) element
                   | otherwise = pure []
