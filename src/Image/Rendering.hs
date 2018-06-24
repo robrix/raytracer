@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Image.Rendering where
 
 import Control.Lens
@@ -11,6 +12,7 @@ import Linear.Vector
 
 type Sample a = Point V4 a
 newtype Pixel a = Pixel { samples :: [Sample a] }
+  deriving (Eq, Monoid, Ord, Semigroup, Show)
 
 type Size = V2 Int
 
