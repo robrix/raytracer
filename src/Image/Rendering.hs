@@ -30,8 +30,8 @@ toPPM depth r = header <> encodePixels (pixels r)
   where header = foldMap B.string7 (intersperse " " ["P6", show w, "", show h, case depth of { Depth8 -> "255\n" ; Depth16 -> "65535\n" }])
         encodePixels pixels = mconcat
           [ encodePixel (pixels ! V2 x y)
-          | x <- [0..pred w]
-          , y <- [0..pred h]
+          | y <- [0..pred h]
+          , x <- [0..pred w]
           ]
         encodePixel = encodeSample . average
         encodeSample = case depth of
