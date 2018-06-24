@@ -28,13 +28,14 @@ data Depth = Depth8 | Depth16
 
 toPPM :: RealFrac a => Depth -> Rendering a -> B.Builder
 toPPM depth r = header <> encodeRows (pixels r)
-  where header = foldMap B.string7 (intersperse " " ["P6", show (renderingWidth r), "", show (renderingHeight r), case depth of { Depth8 -> "255\n" ; Depth16 -> "65535\n" }])
+  where header = foldMap B.string7 (intersperse " " ["P6", show w, "", show h, case depth of { Depth8 -> "255\n" ; Depth16 -> "65535\n" }])
         encodeRows = foldMap encodeRow
         encodeRow = foldMap encodeSamples
         encodeSamples = encodeSample . average
         encodeSample = case depth of
           Depth8 -> foldMap (B.word8 . max 0 . min 255 . round) . view _xyz . (* 255)
           Depth16 -> foldMap (B.word16BE . max 0 . min 65535 . round) . view _xyz . (* 65535)
+        Size w h = renderingSize r
 
 average :: Fractional a => Pixel a -> Sample a
 average p = getAdd (foldMap Add p) ^/ fromIntegral (length p)
