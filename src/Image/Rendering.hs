@@ -19,21 +19,17 @@ renderingWidth :: Rendering a -> Int
 renderingWidth (Rendering []) = 0
 renderingWidth (Rendering (row : _)) = length row
 
-toPPM8 :: RealFrac a => Rendering a -> B.Builder
-toPPM8 r = header <> encodeRows (pixels r)
-  where header = foldMap B.string7 (intersperse " " ["P6", show (renderingWidth r), "", show (renderingHeight r), "255\n"])
-        encodeRows = foldMap encodeRow
-        encodeRow = foldMap encodeSamples
-        encodeSamples = encodeSample . average
-        encodeSample = foldMap (B.word8 . max 0 . min 255 . round) . view _xyz . (* 255)
+data Depth = Depth8 | Depth16
 
-toPPM16 :: RealFrac a => Rendering a -> B.Builder
-toPPM16 r = header <> encodeRows (pixels r)
-  where header = foldMap B.string7 (intersperse " " ["P6", show (renderingWidth r), "", show (renderingHeight r), "65535\n"])
+toPPM :: RealFrac a => Depth -> Rendering a -> B.Builder
+toPPM depth r = header <> encodeRows (pixels r)
+  where header = foldMap B.string7 (intersperse " " ["P6", show (renderingWidth r), "", show (renderingHeight r), case depth of { Depth8 -> "255\n" ; Depth16 -> "65535\n" }])
         encodeRows = foldMap encodeRow
         encodeRow = foldMap encodeSamples
         encodeSamples = encodeSample . average
-        encodeSample = foldMap (B.word16BE . max 0 . min 65535 . round) . view _xyz . (* 65535)
+        encodeSample = case depth of
+          Depth8 -> foldMap (B.word8 . max 0 . min 255 . round) . view _xyz . (* 255)
+          Depth16 -> foldMap (B.word16BE . max 0 . min 65535 . round) . view _xyz . (* 65535)
 
 average :: Fractional a => Pixel a -> Sample a
 average p = getAdd (foldMap Add p) ^/ fromIntegral (length p)
