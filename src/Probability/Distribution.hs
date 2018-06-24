@@ -82,11 +82,12 @@ histogram []      _       = []
 histogram _       []      = []
 histogram buckets samples = map fst (foldl' combine (map ((,) 0) buckets) samples)
   where combine :: Real a => [(Int, a)] -> a -> [(Int, a)]
-        combine accum sample = foldr (\ each rest -> case (each, rest) of
-          ((count, from), ((_, to) : _))
-            | from <= sample, sample <= to -> (succ count, from) : rest
-            | otherwise                    -> (     count, from) : rest
-          _ -> []) [] accum
+        combine accum sample = foldr (\ each rest -> case each of
+          (count, from)
+            | ((_, to) : _) <- rest
+            , from   <= sample
+            , sample <= to     -> (succ count, from) : rest
+            | otherwise        -> (     count, from) : rest) [] accum
 
 sparkify :: [Int] -> String
 sparkify bins
