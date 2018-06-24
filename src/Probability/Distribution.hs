@@ -1,6 +1,8 @@
 {-# LANGUAGE GADTs #-}
 module Probability.Distribution where
 
+import Control.Monad ((>=>))
+
 data Distribution num a where
   StdRandom :: Distribution num num
 
@@ -20,3 +22,9 @@ instance Applicative (Distribution num) where
   Pure f     <*> a = fmap f a
   (r :>>= k) <*> a = r :>>= ((<*> a) . k)
   f          <*> a = f :>>= (flip fmap a)
+
+instance Monad (Distribution num) where
+  return = pure
+  Pure a     >>= f = f a
+  (r :>>= k) >>= f = r :>>= (k >=> f)
+  a          >>= f = a :>>= f
