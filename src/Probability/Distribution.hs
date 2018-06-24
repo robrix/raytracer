@@ -6,7 +6,7 @@ import Control.Category ((>>>), id)
 import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class (MonadRandom(..))
 import Data.Foldable (foldl')
-import Data.List (partition, sortOn)
+import Data.List (sortOn)
 import Data.TASequence.BinaryTree (BinaryTree, TASequence(..), TAViewL(..))
 import Prelude hiding (id)
 import System.Random (Random(..))
@@ -88,12 +88,6 @@ histogram buckets samples = map fst (foldl' combine (map ((,) 0) buckets) sample
             | otherwise                    -> (     count, to) : rest
           _ -> []) [] accum
 
-histogramFrom :: Real a => a -> a -> [a] -> [Int]
-histogramFrom from width samples
-  | null samples = []
-  | otherwise = length here : histogramFrom (from + width) width rest
-  where (here, rest) = partition (<= from + width) samples
-
 sparkify :: [Int] -> String
 sparkify bins
   | null bins = ""
@@ -103,8 +97,8 @@ sparkify bins
         max = maximum bins
         spark n = sparks !! round ((fromIntegral n * ((1.0 :: Double) / fromIntegral max)) * fromIntegral maxSpark)
 
-printHistogram :: Real a => a -> a -> Int -> Distribution a -> IO ()
-printHistogram from width n = samples n >=> putStrLn . sparkify . histogramFrom from width
+printHistogram :: Real a => [a] -> Int -> Distribution a -> IO ()
+printHistogram buckets n = samples n >=> putStrLn . sparkify . histogram buckets
 
 
 -- Instances
