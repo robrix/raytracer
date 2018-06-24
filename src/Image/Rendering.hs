@@ -4,18 +4,23 @@ import Control.Lens
 import qualified Data.ByteString.Builder as B
 import Data.List (intersperse)
 import Linear.Affine
+import Linear.V2
 import Linear.V4
 import Linear.Vector
 
 type Sample a = Point V4 a
 newtype Pixel a = Pixel { samples :: [Sample a] }
 
-data Size = Size { width :: {-# UNPACK #-} !Int, height :: {-# UNPACK #-} !Int }
+type Size = V2 Int
+
+width, height :: Size -> Int
+width  (V2 w _) = w
+height (V2 _ h) = h
 
 newtype Rendering a = Rendering { pixels :: [[Pixel a]] }
 
 renderingSize :: Rendering a -> Size
-renderingSize = Size . renderingWidth <*> renderingHeight
+renderingSize = V2 . renderingWidth <*> renderingHeight
   where renderingWidth (Rendering []) = 0
         renderingWidth (Rendering (row : _)) = length row
         renderingHeight = length . pixels
@@ -31,7 +36,7 @@ toPPM depth r = header <> encodeRows (pixels r)
         encodeSample = case depth of
           Depth8 -> foldMap (B.word8 . max 0 . min 255 . round) . view _xyz . (* 255)
           Depth16 -> foldMap (B.word16BE . max 0 . min 65535 . round) . view _xyz . (* 65535)
-        Size w h = renderingSize r
+        V2 w h = renderingSize r
 
 average :: Fractional a => Pixel a -> Sample a
 average (Pixel p) = getAdd (foldMap Add p) ^/ fromIntegral (length p)
