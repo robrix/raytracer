@@ -73,6 +73,9 @@ sparkify bins
         max = maximum bins
         spark n = sparks !! round ((fromIntegral n * ((1.0 :: Double) / fromIntegral max)) * fromIntegral maxSpark)
 
+printHistogram :: Real a => a -> a -> Int -> Distribution a -> IO ()
+printHistogram from width n = samples n >=> putStrLn . sparkify . histogramFrom from width
+
 
 -- Instances
 
