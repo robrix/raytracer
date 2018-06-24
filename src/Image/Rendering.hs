@@ -14,6 +14,9 @@ newtype Pixel a = Pixel { samples :: [Sample a] }
 
 type Size = V2 Int
 
+rowMajor :: Size -> (Int -> Int -> a) -> [a]
+rowMajor (V2 w h) f = [ f x y | y <- [0..pred h], x <- [0..pred w] ]
+
 width, height :: Size -> Int
 width  (V2 w _) = w
 height (V2 _ h) = h
