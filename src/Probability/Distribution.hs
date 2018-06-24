@@ -36,3 +36,11 @@ instance Semigroup a => Semigroup (Distribution num a) where
 instance Monoid a => Monoid (Distribution num a) where
   mempty = pure mempty
   mappend = (<>)
+
+instance Num a => Num (Distribution num a) where
+  (+) = liftA2 (+)
+  (*) = liftA2 (*)
+  abs = fmap abs
+  signum = fmap signum
+  fromInteger = pure . fromInteger
+  negate = fmap negate
