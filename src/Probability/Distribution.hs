@@ -34,7 +34,6 @@ apply q a = case tviewl q of
     h'         -> h' :>>=         t
 
 
-
 -- Constructors
 
 unit :: (Num a, Random a) => Distribution a
