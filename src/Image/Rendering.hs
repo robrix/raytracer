@@ -10,6 +10,8 @@ import Linear.Vector
 type Sample a = Point V4 a
 type Pixel a = [Sample a]
 
+data Size = Size { width :: {-# UNPACK #-} !Int, height :: {-# UNPACK #-} !Int }
+
 newtype Rendering a = Rendering { pixels :: [[Pixel a]] }
 
 renderingHeight :: Rendering a -> Int

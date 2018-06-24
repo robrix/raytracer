@@ -1,6 +1,7 @@
 module Main where
 
 import Geometry.Sphere
+import Image.Rendering
 import Linear.Affine
 import Linear.V3
 import Model.Scene
