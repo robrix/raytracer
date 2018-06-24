@@ -2,7 +2,7 @@
 module Probability.Distribution where
 
 import Control.Applicative
-import Control.Monad ((>=>))
+import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class
 import System.Random
 
@@ -22,7 +22,7 @@ sample (Pure a) = pure a
 sample (a :>>= f) = sample a >>= sample . f
 
 samples :: (MonadRandom m, Random num) => Int -> Distribution num a -> m [a]
-samples n = sequenceA . replicate n . sample
+samples n = replicateM n . sample
 
 
 instance Functor (Distribution num) where
