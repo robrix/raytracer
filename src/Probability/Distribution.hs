@@ -96,6 +96,7 @@ instance Applicative Distribution where
 
 instance Monad Distribution where
   return = pure
+
   Pure a     >>= f = f a
   (r :>>= k) >>= f = r :>>= (k >=> f)
   a          >>= f = a :>>= f
