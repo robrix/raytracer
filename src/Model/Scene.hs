@@ -1,17 +1,19 @@
 module Model.Scene where
 
+import Control.Monad.Random.Class (MonadRandom)
 import Control.Parallel.Strategies (evalTuple2, parList, r0, rpar, using)
 import Data.Array
 import qualified Data.ByteString.Builder as B
 import Geometry.Ray
 import Geometry.Sphere
-import Image.Rendering
+import Image.Rendering hiding (samples)
 import Linear.Affine
 import Linear.Metric
 import Linear.V2
 import Linear.V3
 import Linear.V4
 import Linear.Vector
+import Probability.Distribution hiding (unit)
 import System.IO
 
 -- | Sparse 8-tree representation for efficiently storing and querying scenes.
@@ -35,10 +37,15 @@ trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere o
         y = unit _y
         z = unit _z
 
-render :: RealFloat a => Size -> Scene a -> Rendering a
-render size@(V2 w h) scene = Rendering (array (0, size) (rays `using` parList (evalTuple2 r0 rpar)))
-  where rays = rowMajor size (\ x y -> (V2 x y, Pixel [trace 8 scene (Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) 0)) (unit _z))]))
+render :: (MonadRandom m, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
+render size@(V2 w h) n scene = do
+  rays <- samples n $ do
+    x <- UniformR 0 (pred w)
+    y <- UniformR 0 (pred h)
+    pure (V2 x y, Pixel [trace 8 scene (Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) 0)) (unit _z))])
+  pure (Rendering (accumArray (<>) mempty (0, size) (rays `using` parList (evalTuple2 r0 rpar))))
 
-renderToFile :: RealFloat a => Size -> FilePath -> Scene a -> IO ()
-renderToFile size path scene = withFile path WriteMode
-  (\ handle -> B.hPutBuilder handle (toPPM Depth16 (render size scene)))
+renderToFile :: RealFloat a => Size -> Int -> FilePath -> Scene a -> IO ()
+renderToFile size n path scene = withFile path WriteMode (\ handle -> do
+  rendering <- render size n scene
+  B.hPutBuilder handle (toPPM Depth16 rendering))
