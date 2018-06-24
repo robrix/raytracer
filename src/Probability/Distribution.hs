@@ -14,6 +14,7 @@ import System.Random (Random(..))
 data Distribution a where
   Uniform  :: Random a => Distribution a
   UniformR :: Random a => a -> a -> Distribution a
+
   Let :: a -> (Distribution a -> Distribution a) -> Distribution a
 
   Pure :: a -> Distribution a
