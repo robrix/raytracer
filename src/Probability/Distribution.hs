@@ -32,3 +32,7 @@ instance Monad (Distribution num) where
 
 instance Semigroup a => Semigroup (Distribution num a) where
   (<>) = liftA2 (<>)
+
+instance Monoid a => Monoid (Distribution num a) where
+  mempty = pure mempty
+  mappend = (<>)
