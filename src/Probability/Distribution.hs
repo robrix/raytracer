@@ -4,6 +4,7 @@ module Probability.Distribution where
 import Control.Applicative
 import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class
+import Data.List (sortOn)
 import System.Random
 
 data Distribution a where
@@ -30,6 +31,16 @@ listOf element = do
 listOfN :: Int -> Distribution a -> Distribution [a]
 listOfN n element | n > 0 = (:) <$> element <*> listOfN (pred n) element
                   | otherwise = pure []
+
+frequency :: [(Int, Distribution a)] -> Distribution a
+frequency [] = error "frequency called with empty list"
+frequency choices = (StdRandomR 0 total :: Distribution Int) >>= pick sorted
+  where total = sum (fst <$> sorted)
+        sorted = reverse (sortOn fst choices)
+        pick ((i, a) : rest) n
+          | n <= i = a
+          | otherwise = pick rest (n - i)
+        pick _ _ = error "pick called with empty list"
 
 
 -- Eliminators
