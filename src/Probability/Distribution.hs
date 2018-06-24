@@ -6,6 +6,7 @@ import Control.Monad ((>=>))
 
 data Distribution num a where
   StdRandom :: Distribution num num
+  Let :: a -> (Distribution num a -> Distribution num a) -> Distribution num a
 
   Pure :: a -> Distribution num a
   (:>>=) :: Distribution num b -> (b -> Distribution num a) -> Distribution num a
