@@ -4,7 +4,7 @@ module Probability.Distribution where
 import Control.Applicative
 import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class
-import Data.List (sortOn)
+import Data.List (partition, sortOn)
 import System.Random
 
 data Distribution a where
@@ -54,6 +54,24 @@ sample (a :>>= f) = sample a >>= sample . f
 
 samples :: MonadRandom m => Int -> Distribution a -> m [a]
 samples n = replicateM n . sample
+
+
+-- Inspection
+
+histogramFrom :: Real a => a -> a -> [a] -> [Int]
+histogramFrom from width samples
+  | null samples = []
+  | otherwise = length here : histogramFrom (from + width) width rest
+  where (here, rest) = partition (<= from + width) samples
+
+sparkify :: [Int] -> String
+sparkify bins
+  | null bins = ""
+  | otherwise = spark <$> bins
+  where sparks = " ▁▂▃▄▅▆▇█"
+        maxSpark = pred (length sparks)
+        max = maximum bins
+        spark n = sparks !! round ((fromIntegral n * ((1.0 :: Double) / fromIntegral max)) * fromIntegral maxSpark)
 
 
 -- Instances
