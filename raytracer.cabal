@@ -25,7 +25,6 @@ library
                      , lens
                      , linear
                      , parallel
-                     , probability
   default-language:    Haskell2010
 
 executable raytracer
