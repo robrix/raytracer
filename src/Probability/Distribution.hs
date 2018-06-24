@@ -2,9 +2,12 @@
 module Probability.Distribution where
 
 import Control.Applicative (liftA2)
+import Control.Category ((>>>), id)
 import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class (MonadRandom(..))
 import Data.List (partition, sortOn)
+import Data.TASequence.BinaryTree (BinaryTree, TASequence(..), TAViewL(..))
+import Prelude hiding (id)
 import System.Random (Random(..))
 
 data Distribution a where
@@ -13,9 +16,21 @@ data Distribution a where
   Let :: a -> (Distribution a -> Distribution a) -> Distribution a
 
   Pure :: a -> Distribution a
-  (:>>=) :: Distribution b -> (b -> Distribution a) -> Distribution a
+  (:>>=) :: Distribution b -> Queue b a -> Distribution a
 
 infixl 1 :>>=
+
+newtype Arrow a b = Arrow { runArrow :: a -> Distribution b }
+type Queue = BinaryTree Arrow
+
+apply :: Queue a b -> a -> Distribution b
+apply q a = case tviewl q of
+  TAEmptyL -> pure a
+  h :< t   -> case runArrow h a of
+    Pure b     -> apply t b
+    h' :>>= q' -> h' :>>= (q' >>> t)
+    h'         -> h' :>>=         t
+
 
 
 -- Constructors
@@ -53,7 +68,7 @@ sample StdRandom = getRandom
 sample (StdRandomR from to) = getRandomR (from, to)
 sample (Let v f) = sample (f (Pure v))
 sample (Pure a) = pure a
-sample (a :>>= f) = sample a >>= sample . f
+sample (a :>>= q) = sample a >>= sample . apply q
 
 samples :: MonadRandom m => Int -> Distribution a -> m [a]
 samples n = replicateM n . sample
@@ -84,22 +99,22 @@ printHistogram from width n = samples n >=> putStrLn . sparkify . histogramFrom 
 
 instance Functor Distribution where
   fmap f (Pure a)   = Pure (f a)
-  fmap f (r :>>= k) = r :>>= fmap f . k
-  fmap f a          = a :>>= Pure . f
+  fmap f (r :>>= q) = r :>>= q  |> Arrow (Pure . f)
+  fmap f a          = a :>>= id |> Arrow (Pure . f)
 
 instance Applicative Distribution where
   pure = Pure
 
   Pure f     <*> a = fmap f a
-  (r :>>= k) <*> a = r :>>= ((<*> a) . k)
-  f          <*> a = f :>>= (flip fmap a)
+  (r :>>= q) <*> a = r :>>= q  |> Arrow (flip fmap a)
+  f          <*> a = f :>>= id |> Arrow (flip fmap a)
 
 instance Monad Distribution where
   return = pure
 
   Pure a     >>= f = f a
-  (r :>>= k) >>= f = r :>>= (k >=> f)
-  a          >>= f = a :>>= f
+  (r :>>= q) >>= f = r :>>= q  |> Arrow f
+  a          >>= f = a :>>= id |> Arrow f
 
 instance Semigroup a => Semigroup (Distribution a) where
   (<>) = liftA2 (<>)
