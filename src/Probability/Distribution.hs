@@ -1,11 +1,11 @@
 {-# LANGUAGE GADTs #-}
 module Probability.Distribution where
 
-import Control.Applicative
+import Control.Applicative (liftA2)
 import Control.Monad ((>=>), replicateM)
-import Control.Monad.Random.Class
+import Control.Monad.Random.Class (MonadRandom(..))
 import Data.List (partition, sortOn)
-import System.Random
+import System.Random (Random(..))
 
 data Distribution a where
   StdRandom  :: Random a => Distribution a
