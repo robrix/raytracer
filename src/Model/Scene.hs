@@ -26,13 +26,13 @@ trace 0 _ _ = zero
 trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
   [] -> zero
   Intersection _ normal : _ -> P (V4
-    (abs (_x `dot` normal))
-    (abs (_y `dot` normal))
-    (abs (_z `dot` normal))
+    (abs (x `dot` normal))
+    (abs (y `dot` normal))
+    (abs (z `dot` normal))
     (d `dot` normal))
-  where _x = V3 1 0 0
-        _y = V3 0 1 0
-        _z = V3 0 0 1
+  where x = unit _x
+        y = unit _y
+        z = unit _z
 
 data Size = Size { width :: {-# UNPACK #-} !Int, height :: {-# UNPACK #-} !Int }
 
