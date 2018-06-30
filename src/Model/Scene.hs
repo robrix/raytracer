@@ -15,6 +15,7 @@ import Linear.V4
 import Linear.Vector
 import Probability.Distribution hiding (unit)
 import System.IO
+import System.Random
 
 -- | Sparse 8-tree representation for efficiently storing and querying scenes.
 data Octree a
@@ -33,20 +34,20 @@ data Scene a = Scene
   , sceneModels :: Sphere a
   }
 
-trace :: (Applicative m, RealFloat a) => Int -> Scene a -> Ray a -> m (Sample a)
+trace :: (Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
-trace _ (Scene _ sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
+trace n scene@(Scene _ sphere) ray = case intersectionsWithSphere ray sphere of
   [] -> pure zero
-  Intersection _ normal : _ -> pure (P (V4
-    (abs (x `dot` normal))
-    (abs (y `dot` normal))
-    (abs (z `dot` normal))
-    (d `dot` normal)))
-  where x = unit _x
-        y = unit _y
-        z = unit _z
+  Intersection origin normal : _ -> do
+    direction <- V3 <$> Uniform <*> Uniform <*> Uniform
+    incoming <- trace (pred n) scene (Ray origin direction)
+    let cosTheta = direction `dot` normal
+    pure (emittance + (reflectance ^/ pi * incoming ^* cosTheta ^/ prob))
+  where emittance = P (V4 0.25 0.25 0.25 1)
+        reflectance = P (V4 1 1 0 1)
+        prob = recip (2 * pi)
 
-render :: (MonadRandom m, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
+render :: (MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
 render size@(V2 w h) n scene = do
   rays <- samples n $ do
     x <- UniformR 0 (pred w)
@@ -56,7 +57,7 @@ render size@(V2 w h) n scene = do
     pure (V2 x y, Pixel [sample])
   pure (Rendering (accumArray (<>) mempty (0, size) (rays `using` parList (evalTuple2 r0 rpar))))
 
-renderToFile :: RealFloat a => Size -> Int -> FilePath -> Scene a -> IO ()
+renderToFile :: (Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile size n path scene = withFile path WriteMode (\ handle -> do
   rendering <- render size n scene
   B.hPutBuilder handle (toPPM Depth16 rendering))
