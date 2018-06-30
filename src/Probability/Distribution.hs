@@ -122,6 +122,12 @@ instance Monad Distribution where
   (r :>>= q) >>= f = r :>>= q  |> Arrow f
   a          >>= f = a :>>= id |> Arrow f
 
+instance MonadRandom Distribution where
+  getRandomR (from, to) = UniformR from to
+  getRandom = Uniform
+  getRandomRs interval = (:) <$> getRandomR interval <*> getRandomRs interval
+  getRandoms = (:) <$> getRandom <*> getRandoms
+
 instance Semigroup a => Semigroup (Distribution a) where
   (<>) = liftA2 (<>)
 
