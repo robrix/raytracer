@@ -27,11 +27,14 @@ data Light a = Light
   , lightColour :: V3 a
   }
 
-newtype Scene a = Scene (Sphere a)
+data Scene a = Scene
+  { sceneLights :: Light a
+  , sceneModels :: Sphere a
+  }
 
 trace :: RealFloat a => Int -> Scene a -> Ray a -> Sample a
 trace 0 _ _ = zero
-trace _ (Scene sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
+trace _ (Scene _ sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
   [] -> zero
   Intersection _ normal : _ -> P (V4
     (abs (x `dot` normal))
