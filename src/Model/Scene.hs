@@ -25,6 +25,7 @@ data Octree a
 data Light a = Light
   { lightOrigin :: Point V3 a
   , lightColour :: Point V3 a
+  , lightRadius :: a
   }
 
 data Scene a = Scene
