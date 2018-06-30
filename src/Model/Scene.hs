@@ -22,6 +22,11 @@ data Octree a
   | Leaf a
   | XYZ (V2 (V2 (V2 (Octree a))))
 
+data Light a = Light
+  { lightOrigin :: Point V3 a
+  , lightColour :: V3 a
+  }
+
 newtype Scene a = Scene (Sphere a)
 
 trace :: RealFloat a => Int -> Scene a -> Ray a -> Sample a
