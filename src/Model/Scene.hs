@@ -32,15 +32,15 @@ data Scene a = Scene
   , sceneModels :: Sphere a
   }
 
-trace :: RealFloat a => Int -> Scene a -> Ray a -> Sample a
-trace 0 _ _ = zero
+trace :: (Applicative m, RealFloat a) => Int -> Scene a -> Ray a -> m (Sample a)
+trace 0 _ _ = pure zero
 trace _ (Scene _ sphere) ray@(Ray _ d) = case intersectionsWithSphere ray sphere of
-  [] -> zero
-  Intersection _ normal : _ -> P (V4
+  [] -> pure zero
+  Intersection _ normal : _ -> pure (P (V4
     (abs (x `dot` normal))
     (abs (y `dot` normal))
     (abs (z `dot` normal))
-    (d `dot` normal))
+    (d `dot` normal)))
   where x = unit _x
         y = unit _y
         z = unit _z
@@ -50,7 +50,9 @@ render size@(V2 w h) n scene = do
   rays <- samples n $ do
     x <- UniformR 0 (pred w)
     y <- UniformR 0 (pred h)
-    pure (V2 x y, Pixel [trace 8 scene (Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) 0)) (unit _z))])
+    let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) 0)) (unit _z)
+    sample <- trace 8 scene ray
+    pure (V2 x y, Pixel [sample])
   pure (Rendering (accumArray (<>) mempty (0, size) (rays `using` parList (evalTuple2 r0 rpar))))
 
 renderToFile :: RealFloat a => Size -> Int -> FilePath -> Scene a -> IO ()
