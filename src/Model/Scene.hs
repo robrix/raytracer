@@ -40,7 +40,7 @@ trace 0 _ _ = pure zero
 trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . modelIntersections ray of
   [] -> pure zero
   (Intersection _ origin normal, Model _ emittance reflectance) : _ -> do
-    v <- V3 <$> Uniform <*> Uniform <*> Uniform
+    v <- V3 <$> UniformR (-1) 1 <*> UniformR (-1) 1 <*> UniformR (-1) 1
     let direction = Metric.normalize v
         cosTheta = direction `Metric.dot` normal
         brdf = reflectance ^/ pi
