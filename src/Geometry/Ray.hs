@@ -15,10 +15,11 @@ data Ray a = Ray
   deriving (Eq, Ord, Show)
 
 data Intersection a = Intersection
-  { origin :: !(Point V3 a)
-  , normal :: !(V3 a)
+  { distance :: !a
+  , origin   :: !(Point V3 a)
+  , normal   :: !(V3 a)
   }
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 -- | Compute the set of intersections between a Ray and a Sphere as a list of Intersections in increasing order of distance.
 intersectionsWithSphere :: RealFloat a => Ray a -> Sphere a -> [Intersection a]
@@ -29,5 +30,5 @@ intersectionsWithSphere (Ray origin direction) (Sphere centre radius) = if discr
         c = sum ((** 2) <$> translated) - radius ** 2
         translated = origin .-. centre
         discriminant = b ** 2 - 4 * c
-        atDistance d = Intersection intersection (unP (intersection - centre) ^/ radius)
+        atDistance d = Intersection d intersection (unP (intersection - centre) ^/ radius)
           where intersection = origin + P direction ^* d

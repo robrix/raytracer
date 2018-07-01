@@ -38,7 +38,7 @@ trace :: (Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sam
 trace 0 _ _ = pure zero
 trace n scene@(Scene _ sphere) ray = case intersectionsWithSphere ray sphere of
   [] -> pure zero
-  Intersection origin normal : _ -> do
+  Intersection _ origin normal : _ -> do
     direction <- V3 <$> Uniform <*> Uniform <*> Uniform
     incoming <- trace (pred n) scene (Ray origin direction)
     let cosTheta = direction `dot` normal
