@@ -24,7 +24,7 @@ import System.Random.Mersenne.Pure64
 data Octree a
   = Empty
   | Leaf a
-  | XYZ (V2 (V2 (V2 (Octree a))))
+  | XYZ a (V2 (V2 (V2 (Octree a))))
 
 newtype Scene a = Scene [Model a]
 
