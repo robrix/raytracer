@@ -28,14 +28,17 @@ data Octree a
 
 newtype Scene a = Scene [Model a]
 
+data Geometry a
+  = S (Sphere a)
+
 data Model a = Model
-  { modelGeometry    :: Sphere a
+  { modelGeometry    :: Geometry a
   , modelReflectance :: Point V3 a
   , modelEmittance   :: Point V3 a
   }
 
 modelIntersections :: (Epsilon a, RealFloat a) => Ray a -> Model a -> [(Intersection a, Model a)]
-modelIntersections ray model@(Model sphere _ _) = (,) <$> intersectionsWithSphere ray sphere <*> [model]
+modelIntersections ray model@(Model (S sphere) _ _) = (,) <$> intersectionsWithSphere ray sphere <*> [model]
 
 trace :: (Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
