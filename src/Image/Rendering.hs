@@ -7,10 +7,10 @@ import qualified Data.ByteString.Builder as B
 import Data.List (intersperse)
 import Linear.Affine
 import Linear.V2
-import Linear.V4
+import Linear.V3
 import Linear.Vector
 
-type Sample a = Point V4 a
+type Sample a = Point V3 a
 newtype Pixel a = Pixel { samples :: [Sample a] }
   deriving (Eq, Monoid, Ord, Semigroup, Show)
 

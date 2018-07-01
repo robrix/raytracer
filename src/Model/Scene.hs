@@ -12,7 +12,6 @@ import Linear.Affine
 import Linear.Metric (dot)
 import Linear.V2
 import Linear.V3
-import Linear.V4
 import Linear.Vector
 import Probability.Distribution hiding (unit)
 import System.IO
@@ -37,8 +36,8 @@ data Scene a = Scene
 
 data Model a = Model
   { modelGeometry    :: Sphere a
-  , modelReflectance :: Point V4 a
-  , modelEmittance   :: Point V4 a
+  , modelReflectance :: Point V3 a
+  , modelEmittance   :: Point V3 a
   }
 
 modelIntersections :: RealFloat a => Ray a -> Model a -> [(Intersection a, Model a)]
