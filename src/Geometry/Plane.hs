@@ -16,7 +16,7 @@ intersections :: (Epsilon a, RealFloat a) => Plane a -> Ray a -> [Intersection a
 intersections (Plane centre normal) (Ray origin direction)
   | denom > 0, t >= 0 = [Intersection t intersection normal]
   | otherwise         = []
-  where denom = normal `dot` direction
+  where denom = direction `dot` normal
         offset = centre - origin
         t = unP offset `dot` normal / denom
         intersection = origin + P direction ^* t
