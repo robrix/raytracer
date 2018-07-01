@@ -35,7 +35,11 @@ data Scene a = Scene
   , sceneModels :: [Sphere a]
   }
 
-newtype Model a = Model (Sphere a)
+data Model a = Model
+  { modelGeometry    :: Sphere a
+  , modelReflectance :: Point V4 a
+  , modelEmittance   :: Point V4 a
+  }
 
 trace :: (Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
