@@ -35,8 +35,8 @@ data Geometry a
 
 data Model a = Model
   { modelGeometry    :: Geometry a
-  , modelReflectance :: Point V3 a
   , modelEmittance   :: Point V3 a
+  , modelReflectance :: Point V3 a
   }
 
 intersections :: (Epsilon a, RealFloat a) => Geometry a -> Ray a -> [Intersection a]
