@@ -9,7 +9,8 @@ import Geometry.Ray
 import Geometry.Sphere
 import Image.Rendering hiding (samples)
 import Linear.Affine
-import Linear.Metric (dot)
+import Linear.Epsilon
+import qualified Linear.Metric as Metric
 import Linear.V2
 import Linear.V3
 import Linear.Vector
@@ -34,19 +35,20 @@ data Model a = Model
 modelIntersections :: RealFloat a => Ray a -> Model a -> [(Intersection a, Model a)]
 modelIntersections ray model@(Model sphere _ _) = (,) <$> intersectionsWithSphere ray sphere <*> [model]
 
-trace :: (Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
+trace :: (Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
 trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . modelIntersections ray of
   [] -> pure zero
   (Intersection _ origin normal, Model _ emittance reflectance) : _ -> do
-    direction <- V3 <$> Uniform <*> Uniform <*> Uniform
-    let cosTheta = direction `dot` normal
+    v <- V3 <$> Uniform <*> Uniform <*> Uniform
+    let direction = Metric.normalize v
+        cosTheta = direction `Metric.dot` normal
         brdf = reflectance ^/ pi
     incoming <- trace (pred n) scene (Ray origin (if cosTheta >= 0 then direction else -direction))
     pure (emittance + (brdf * incoming ^* abs cosTheta ^/ prob))
   where prob = recip (2 * pi)
 
-render :: (MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
+render :: (Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
 render size@(V2 w h) n scene = do
   rays <- samples n $ do
     x <- UniformR 0 (pred w)
@@ -56,7 +58,7 @@ render size@(V2 w h) n scene = do
     pure (V2 x y, Pixel [sample])
   pure (Rendering (accumArray (<>) mempty (0, size) (rays `using` parList (evalTuple2 r0 rpar))))
 
-renderToFile :: (Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
+renderToFile :: (Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile size n path scene = withFile path WriteMode (\ handle -> do
   rendering <- render size n scene
   B.hPutBuilder handle (toPPM Depth16 rendering))
