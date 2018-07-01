@@ -4,12 +4,12 @@ import Control.Monad.Random.Class (MonadRandom)
 import Control.Parallel.Strategies (evalTuple2, parList, r0, rpar, using)
 import Data.Array
 import qualified Data.ByteString.Builder as B
-import Data.List (sort)
+import Data.List (sortOn)
 import Geometry.Ray
 import Geometry.Sphere
 import Image.Rendering hiding (samples)
 import Linear.Affine
-import Linear.Metric
+import Linear.Metric (dot)
 import Linear.V2
 import Linear.V3
 import Linear.V4
@@ -32,7 +32,7 @@ data Light a = Light
 
 data Scene a = Scene
   { sceneLights :: Light a
-  , sceneModels :: [Sphere a]
+  , sceneModels :: [Model a]
   }
 
 data Model a = Model
@@ -46,16 +46,14 @@ modelIntersections ray model@(Model sphere _ _) = (,) <$> intersectionsWithSpher
 
 trace :: (Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
-trace n scene@(Scene _ spheres) ray = case spheres >>= sort . intersectionsWithSphere ray of
+trace n scene@(Scene _ spheres) ray = case spheres >>= sortOn (distance . fst) . modelIntersections ray of
   [] -> pure zero
-  Intersection _ origin normal : _ -> do
+  (Intersection _ origin normal, Model _ emittance reflectance) : _ -> do
     direction <- V3 <$> Uniform <*> Uniform <*> Uniform
     let cosTheta = direction `dot` normal
     incoming <- trace (pred n) scene (Ray origin (if cosTheta >= 0 then direction else -direction))
     pure (emittance + (reflectance ^/ pi * incoming ^* abs cosTheta ^/ prob))
-  where emittance = P (V4 0.25 0.25 0.25 1)
-        reflectance = P (V4 1 0 1 1)
-        prob = recip (2 * pi)
+  where prob = recip (2 * pi)
 
 render :: (MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
 render size@(V2 w h) n scene = do
