@@ -37,12 +37,12 @@ data Model a = Model
   , modelEmittance   :: Point V3 a
   }
 
-modelIntersections :: (Epsilon a, RealFloat a) => Ray a -> Model a -> [(Intersection a, Model a)]
-modelIntersections ray model@(Model (S sphere) _ _) = (,) <$> intersections ray sphere <*> [model]
+modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [(Intersection a, Model a)]
+modelIntersections model@(Model (S sphere) _ _) = fmap (flip (,) model) . intersections sphere
 
 trace :: (Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
-trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . modelIntersections ray of
+trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . flip modelIntersections ray of
   [] -> pure zero
   (Intersection _ origin normal, Model _ emittance reflectance) : _ -> do
     v <- V3 <$> UniformR (-1) 1 <*> UniformR (-1) 1 <*> UniformR (-1) 1
