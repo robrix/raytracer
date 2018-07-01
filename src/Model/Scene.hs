@@ -41,6 +41,9 @@ data Model a = Model
   , modelEmittance   :: Point V4 a
   }
 
+modelIntersections :: RealFloat a => Ray a -> Model a -> [(Intersection a, Model a)]
+modelIntersections ray model@(Model sphere _ _) = (,) <$> intersectionsWithSphere ray sphere <*> [model]
+
 trace :: (Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
 trace n scene@(Scene _ spheres) ray = case spheres >>= sort . intersectionsWithSphere ray of
