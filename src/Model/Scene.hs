@@ -45,7 +45,7 @@ trace n scene@(Scene _ spheres) ray = case spheres >>= sort . intersectionsWithS
     incoming <- trace (pred n) scene (Ray origin (if cosTheta >= 0 then direction else -direction))
     pure (emittance + (reflectance ^/ pi * incoming ^* abs cosTheta ^/ prob))
   where emittance = P (V4 0.25 0.25 0.25 1)
-        reflectance = P (V4 1 1 0 1)
+        reflectance = P (V4 1 0 1 1)
         prob = recip (2 * pi)
 
 render :: (MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
