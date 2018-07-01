@@ -2,7 +2,6 @@
 module Geometry.Ray where
 
 import Control.Applicative ((<**>))
-import Data.List (sort)
 import Geometry.Sphere
 import Linear.Affine
 import Linear.Epsilon
@@ -25,7 +24,7 @@ data Intersection a = Intersection
 
 -- | Compute the set of intersections between a Ray and a Sphere as a list of Intersections in increasing order of distance.
 intersectionsWithSphere :: (Epsilon a, RealFloat a) => Ray a -> Sphere a -> [Intersection a]
-intersectionsWithSphere (Ray origin direction) (Sphere centre radius) = if discriminant < 0 then [] else atDistance <$> sort (filter (> 0) ts)
+intersectionsWithSphere (Ray origin direction) (Sphere centre radius) = if discriminant < 0 then [] else atDistance <$> filter (> 0) ts
   where ts = [-b] <**> [(+), (-)] <*> [sqrt discriminant]
         b = sum (direction * unP translated)
         translated = origin - centre
