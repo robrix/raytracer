@@ -38,7 +38,7 @@ data Model a = Model
   }
 
 modelIntersections :: (Epsilon a, RealFloat a) => Ray a -> Model a -> [(Intersection a, Model a)]
-modelIntersections ray model@(Model (S sphere) _ _) = (,) <$> intersectionsWithSphere ray sphere <*> [model]
+modelIntersections ray model@(Model (S sphere) _ _) = (,) <$> intersections ray sphere <*> [model]
 
 trace :: (Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
