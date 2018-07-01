@@ -1,6 +1,7 @@
 module Model.Scene where
 
 import Control.Monad.Random.Class (MonadRandom)
+import Control.Monad.Random.Lazy
 import Control.Parallel.Strategies (evalTuple2, parList, r0, rpar, using)
 import Data.Array
 import qualified Data.ByteString.Builder as B
@@ -16,7 +17,8 @@ import Linear.V3
 import Linear.Vector
 import Probability.Distribution hiding (unit)
 import System.IO
-import System.Random
+import System.Random (Random)
+import System.Random.Mersenne.Pure64
 
 -- | Sparse 8-tree representation for efficiently storing and querying scenes.
 data Octree a
@@ -59,6 +61,8 @@ render size@(V2 w h) n scene = do
   pure (Rendering (accumArray (<>) mempty (0, size) (rays `using` parList (evalTuple2 r0 rpar))))
 
 renderToFile :: (Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
-renderToFile size n path scene = withFile path WriteMode (\ handle -> do
-  rendering <- render size n scene
-  B.hPutBuilder handle (toPPM Depth16 rendering))
+renderToFile size n path scene = do
+  mt <- newPureMT
+  withFile path WriteMode (\ handle -> do
+    rendering <- evalRandT (render size n scene) mt
+    B.hPutBuilder handle (toPPM Depth16 rendering))

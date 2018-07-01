@@ -25,6 +25,7 @@ library
                      , bytestring
                      , lens
                      , linear
+                     , mersenne-random-pure64
                      , MonadRandom
                      , parallel
                      , random
