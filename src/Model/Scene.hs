@@ -6,6 +6,7 @@ import Control.Parallel.Strategies (evalTuple2, parList, r0, rpar, using)
 import Data.Array
 import qualified Data.ByteString.Builder as B
 import Data.List (sortOn)
+import qualified Geometry.Plane as Plane
 import Geometry.Ray
 import qualified Geometry.Sphere as Sphere
 import Image.Rendering hiding (samples)
@@ -30,6 +31,7 @@ newtype Scene a = Scene [Model a]
 
 data Geometry a
   = Sphere (Sphere.Sphere a)
+  | Plane (Plane.Plane a)
 
 data Model a = Model
   { modelGeometry    :: Geometry a
@@ -39,6 +41,7 @@ data Model a = Model
 
 intersections :: (Epsilon a, RealFloat a) => Geometry a -> Ray a -> [Intersection a]
 intersections (Sphere sphere) = Sphere.intersections sphere
+intersections (Plane plane)   = Plane.intersections plane
 
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [(Intersection a, Model a)]
 modelIntersections model@(Model geometry _ _) = fmap (flip (,) model) . intersections geometry
