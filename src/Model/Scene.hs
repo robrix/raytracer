@@ -7,7 +7,7 @@ import Data.Array
 import qualified Data.ByteString.Builder as B
 import Data.List (sortOn)
 import Geometry.Ray
-import Geometry.Sphere
+import qualified Geometry.Sphere as Sphere
 import Image.Rendering hiding (samples)
 import Linear.Affine
 import Linear.Epsilon
@@ -29,7 +29,7 @@ data Octree a
 newtype Scene a = Scene [Model a]
 
 data Geometry a
-  = S (Sphere a)
+  = Sphere (Sphere.Sphere a)
 
 data Model a = Model
   { modelGeometry    :: Geometry a
@@ -38,7 +38,7 @@ data Model a = Model
   }
 
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [(Intersection a, Model a)]
-modelIntersections model@(Model (S sphere) _ _) = fmap (flip (,) model) . intersections sphere
+modelIntersections model@(Model (Sphere sphere) _ _) = fmap (flip (,) model) . Sphere.intersections sphere
 
 trace :: (Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
