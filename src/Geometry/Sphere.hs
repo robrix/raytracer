@@ -14,8 +14,8 @@ data Sphere a = Sphere
   }
 
 -- | Compute the set of intersections between a Ray and a Sphere as a list of Intersections in increasing order of distance.
-intersections :: (Epsilon a, RealFloat a) => Ray a -> Sphere a -> [Intersection a]
-intersections (Ray origin direction) (Sphere centre radius) = if discriminant < 0 then [] else atDistance <$> filter (> 0) ts
+intersections :: (Epsilon a, RealFloat a) => Sphere a -> Ray a -> [Intersection a]
+intersections (Sphere centre radius) (Ray origin direction) = if discriminant < 0 then [] else atDistance <$> filter (> 0) ts
   where ts = [-b] <**> [(+), (-)] <*> [sqrt discriminant]
         b = sum (direction * unP translated)
         translated = origin - centre
