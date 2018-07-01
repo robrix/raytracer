@@ -37,8 +37,11 @@ data Model a = Model
   , modelEmittance   :: Point V3 a
   }
 
+intersections :: (Epsilon a, RealFloat a) => Geometry a -> Ray a -> [Intersection a]
+intersections (Sphere sphere) = Sphere.intersections sphere
+
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [(Intersection a, Model a)]
-modelIntersections model@(Model (Sphere sphere) _ _) = fmap (flip (,) model) . Sphere.intersections sphere
+modelIntersections model@(Model geometry _ _) = fmap (flip (,) model) . intersections geometry
 
 trace :: (Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
