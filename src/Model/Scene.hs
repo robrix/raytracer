@@ -35,6 +35,8 @@ data Scene a = Scene
   , sceneModels :: [Sphere a]
   }
 
+newtype Model a = Model (Sphere a)
+
 trace :: (Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
 trace n scene@(Scene _ spheres) ray = case spheres >>= sort . intersectionsWithSphere ray of
