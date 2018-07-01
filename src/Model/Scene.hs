@@ -32,7 +32,7 @@ data Model a = Model
   , modelEmittance   :: Point V3 a
   }
 
-modelIntersections :: RealFloat a => Ray a -> Model a -> [(Intersection a, Model a)]
+modelIntersections :: (Epsilon a, RealFloat a) => Ray a -> Model a -> [(Intersection a, Model a)]
 modelIntersections ray model@(Model sphere _ _) = (,) <$> intersectionsWithSphere ray sphere <*> [model]
 
 trace :: (Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
