@@ -23,16 +23,7 @@ data Octree a
   | Leaf a
   | XYZ (V2 (V2 (V2 (Octree a))))
 
-data Light a = Light
-  { lightOrigin :: Point V3 a
-  , lightColour :: Point V3 a
-  , lightRadius :: a
-  }
-
-data Scene a = Scene
-  { sceneLights :: Light a
-  , sceneModels :: [Model a]
-  }
+newtype Scene a = Scene [Model a]
 
 data Model a = Model
   { modelGeometry    :: Sphere a
@@ -45,7 +36,7 @@ modelIntersections ray model@(Model sphere _ _) = (,) <$> intersectionsWithSpher
 
 trace :: (Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
-trace n scene@(Scene _ spheres) ray = case spheres >>= sortOn (distance . fst) . modelIntersections ray of
+trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . modelIntersections ray of
   [] -> pure zero
   (Intersection _ origin normal, Model _ emittance reflectance) : _ -> do
     direction <- V3 <$> Uniform <*> Uniform <*> Uniform

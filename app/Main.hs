@@ -11,7 +11,7 @@ main :: IO ()
 main = do
   [path] <- getArgs
   renderToFile (V2 800 600) (800 * 600 * 2) path scene
-  where scene = Scene (Light (P (V3 0 300 0)) (P (V3 1 1 1)) 20)
+  where scene = Scene
           [ Model (Sphere (P (V3 0 0 10)) (250 :: Double)) (P (V3 0.25 0.25 0.25)) (P (V3 1 0 1))
           , Model (Sphere (P (V3 0 300 0)) 20) (P (V3 1 1 1)) (P (V3 0 0 0))
           ]
