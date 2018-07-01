@@ -41,9 +41,9 @@ trace n scene@(Scene _ spheres) ray = case spheres >>= sort . intersectionsWithS
   [] -> pure zero
   Intersection _ origin normal : _ -> do
     direction <- V3 <$> Uniform <*> Uniform <*> Uniform
-    incoming <- trace (pred n) scene (Ray origin direction)
     let cosTheta = direction `dot` normal
-    pure (emittance + (reflectance ^/ pi * incoming ^* cosTheta ^/ prob))
+    incoming <- trace (pred n) scene (Ray origin (if cosTheta >= 0 then direction else -direction))
+    pure (emittance + (reflectance ^/ pi * incoming ^* abs cosTheta ^/ prob))
   where emittance = P (V4 0.25 0.25 0.25 1)
         reflectance = P (V4 1 1 0 1)
         prob = recip (2 * pi)
