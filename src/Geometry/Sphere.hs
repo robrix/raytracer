@@ -9,8 +9,8 @@ import Linear.V3
 import Linear.Vector ((^*))
 
 data Sphere a = Sphere
-  { sphereCentre :: !(Point V3 a)
-  , sphereRadius :: !a
+  { origin :: !(Point V3 a)
+  , radius :: !a
   }
 
 -- | Compute the set of intersections between a Ray and a Sphere as a list of Intersections in increasing order of distance.
