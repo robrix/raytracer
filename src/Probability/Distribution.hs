@@ -128,13 +128,6 @@ instance MonadRandom Distribution where
   getRandomRs interval = (:) <$> getRandomR interval <*> getRandomRs interval
   getRandoms = (:) <$> getRandom <*> getRandoms
 
-instance Semigroup a => Semigroup (Distribution a) where
-  (<>) = liftA2 (<>)
-
-instance Monoid a => Monoid (Distribution a) where
-  mempty = pure mempty
-  mappend = (<>)
-
 instance Num a => Num (Distribution a) where
   (+) = liftA2 (+)
   (*) = liftA2 (*)
