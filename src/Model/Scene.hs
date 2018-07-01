@@ -50,8 +50,9 @@ trace n scene@(Scene _ spheres) ray = case spheres >>= sortOn (distance . fst) .
   (Intersection _ origin normal, Model _ emittance reflectance) : _ -> do
     direction <- V3 <$> Uniform <*> Uniform <*> Uniform
     let cosTheta = direction `dot` normal
+        brdf = reflectance ^/ pi
     incoming <- trace (pred n) scene (Ray origin (if cosTheta >= 0 then direction else -direction))
-    pure (emittance + (reflectance ^/ pi * incoming ^* abs cosTheta ^/ prob))
+    pure (emittance + (brdf * incoming ^* abs cosTheta ^/ prob))
   where prob = recip (2 * pi)
 
 render :: (MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
