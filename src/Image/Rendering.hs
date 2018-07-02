@@ -1,10 +1,11 @@
-{-# LANGUAGE DeriveFunctor, GADTs, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DataKinds, DeriveFunctor, GADTs, GeneralizedNewtypeDeriving, KindSignatures #-}
 module Image.Rendering where
 
 import Control.Lens
 import Data.Array
 import qualified Data.ByteString.Builder as B
 import Data.List (intersperse)
+import GHC.TypeLits
 import Linear.Affine
 import Linear.V2
 import Linear.V3
@@ -18,15 +19,15 @@ type Size = V2 Int
 rowMajor :: Size -> (Int -> Int -> a) -> [a]
 rowMajor (V2 w h) f = [ f x y | y <- [0..pred h], x <- [0..pred w] ]
 
-newtype Rendering a where
-  Rendering :: { pixels :: Array Size (Pixel a) } -> Rendering a
+newtype Rendering (width :: Nat) (height :: Nat) a where
+  Rendering :: { pixels :: Array Size (Pixel a) } -> Rendering width height a
 
-renderingSize :: Rendering a -> Size
+renderingSize :: Rendering width height a -> Size
 renderingSize = snd . bounds . pixels
 
 data Depth = Depth8 | Depth16
 
-toPPM :: RealFrac a => Depth -> Rendering a -> B.Builder
+toPPM :: RealFrac a => Depth -> Rendering width height a -> B.Builder
 toPPM depth r = header <> encodePixels (pixels r)
   where header = foldMap B.string7 (intersperse " " ["P6", show w, "", show h, case depth of { Depth8 -> "255\n" ; Depth16 -> "65535\n" }])
         encodePixels pixels = mconcat (rowMajor size (\ x y -> encodePixel (pixels ! V2 x y)))

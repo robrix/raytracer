@@ -79,7 +79,7 @@ trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . fli
     pure (emittance + (brdf * incoming ^/ prob))
   where prob = recip (2 * pi)
 
-render :: (Conjugate a, Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
+render :: (Conjugate a, Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering width height a)
 render size@(V2 w h) n scene = do
   samples <- samples n $ do
     x <- UniformR 0 (pred w)
