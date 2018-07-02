@@ -56,3 +56,7 @@ data Average a = Average
 
 instance Num a => Semigroup (Average a) where
   Average c1 v1 <> Average c2 v2 = Average (c1 + c2) (v1 + v2)
+
+instance Num a => Monoid (Average a) where
+  mempty = Average 0 0
+  mappend = (<>)
