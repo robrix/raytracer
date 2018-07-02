@@ -1,3 +1,4 @@
+{-# LANGUAGE DuplicateRecordFields #-}
 module Model.Scene where
 
 import Control.Monad.Random.Class (MonadRandom)
@@ -42,6 +43,14 @@ data Model a = Model
   , reflectance :: Point V3 a
   }
   deriving (Eq, Ord, Show)
+
+data Step a = Step
+  { intersection :: Intersection a
+  , emittance    :: Point V3 a
+  , reflectance  :: Point V3 a
+  }
+
+type Path a = [Step a]
 
 intersections :: (Epsilon a, RealFloat a) => Geometry a -> Ray a -> [Intersection a]
 intersections (Sphere sphere) = Sphere.intersections sphere
