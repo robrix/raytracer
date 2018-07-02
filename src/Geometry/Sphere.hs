@@ -12,6 +12,7 @@ data Sphere a = Sphere
   { origin :: !(Point V3 a)
   , radius :: !a
   }
+  deriving (Eq, Ord, Show)
 
 -- | Compute the set of intersections between a Ray and a Sphere as a list of Intersections in increasing order of distance.
 intersections :: (Epsilon a, RealFloat a) => Sphere a -> Ray a -> [Intersection a]
