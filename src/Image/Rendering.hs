@@ -53,6 +53,7 @@ data Average a = Average
   { averageCount   :: {-# UNPACK #-} !Int
   , averageSamples :: a
   }
+  deriving (Eq, Ord, Show)
 
 getAverage :: Fractional a => Average a -> a
 getAverage (Average count samples)
