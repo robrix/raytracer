@@ -2,7 +2,7 @@
 module Model.Scene where
 
 import Control.Monad.Random.Class (MonadRandom)
-import Control.Monad.Random.Lazy
+import Control.Monad.Random.Strict
 import Data.Array
 import qualified Data.ByteString.Builder as B
 import Data.List (sortOn)
