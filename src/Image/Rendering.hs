@@ -8,7 +8,6 @@ import Data.List (intersperse)
 import Linear.Affine
 import Linear.V2
 import Linear.V3
-import Linear.Vector
 
 type Sample a = Point V3 a
 newtype Pixel a = Pixel { samples :: Average (Sample a) }
