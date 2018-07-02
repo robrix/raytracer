@@ -37,9 +37,9 @@ data Geometry a
   deriving (Eq, Ord, Show)
 
 data Model a = Model
-  { modelGeometry    :: Geometry a
-  , modelEmittance   :: Point V3 a
-  , modelReflectance :: Point V3 a
+  { geometry    :: Geometry a
+  , emittance   :: Point V3 a
+  , reflectance :: Point V3 a
   }
   deriving (Eq, Ord, Show)
 
