@@ -12,12 +12,14 @@ import Geometry.Ray
 import qualified Geometry.Sphere as Sphere
 import Image.Rendering hiding (samples)
 import Linear.Affine
+import Linear.Conjugate
 import Linear.Epsilon
-import qualified Linear.Metric as Metric
+import qualified Linear.Metric as Linear
+import Linear.Quaternion
 import Linear.V2
 import Linear.V3
 import Linear.Vector as Linear
-import Probability.Distribution
+import Probability.Distribution as Distribution
 import System.IO
 import System.Random (Random)
 import System.Random.Mersenne.Pure64
@@ -59,20 +61,26 @@ intersections (Plane plane)   = Plane.intersections plane
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [(Intersection a, Model a)]
 modelIntersections model@(Model geometry _ _) = fmap (flip (,) model) . intersections geometry
 
-trace :: (Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
+cosineHemispheric :: (Random a, RealFloat a) => Distribution (V3 a)
+cosineHemispheric = do
+  (u1, u2) <- (,) <$> Distribution.unit <*> Distribution.unit
+  let r = sqrt u1
+      theta = 2 * pi * u2
+  pure (V3 (r * cos theta) (r * sin theta) (sqrt (max 0 (1 - u1))))
+
+trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
 trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . flip modelIntersections ray of
   [] -> pure zero
   (Intersection _ origin normal, Model _ emittance reflectance) : _ -> do
-    v <- V3 <$> UniformR (-1) 1 <*> UniformR (-1) 1 <*> UniformR (-1) 1
-    let direction = Metric.normalize v
-        cosTheta = direction `Metric.dot` normal
+    v <- cosineHemispheric
+    let direction = rotate (Quaternion (Linear.unit _z `Linear.dot` normal) (Linear.unit _z `cross` normal)) v
         brdf = reflectance ^/ pi
-    incoming <- trace (pred n) scene (Ray origin (if cosTheta >= 0 then direction else -direction))
-    pure (emittance + (brdf * incoming ^* abs cosTheta ^/ prob))
+    incoming <- trace (pred n) scene (Ray origin direction)
+    pure (emittance + (brdf * incoming ^/ prob))
   where prob = recip (2 * pi)
 
-render :: (Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
+render :: (Conjugate a, Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
 render size@(V2 w h) n scene = do
   rays <- samples n $ do
     x <- UniformR 0 (pred w)
@@ -82,7 +90,7 @@ render size@(V2 w h) n scene = do
     pure (V2 x y, Pixel (Average 1 sample))
   pure (Rendering (accumArray (<>) mempty (0, size) (rays `using` parList (evalTuple2 r0 rpar))))
 
-renderToFile :: (Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
+renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile size n path scene = do
   mt <- newPureMT
   withFile path WriteMode (\ handle -> do
