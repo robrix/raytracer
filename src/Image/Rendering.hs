@@ -36,15 +36,6 @@ toPPM depth r = header <> encodePixels (pixels r)
           Depth16 -> foldMap (B.word16BE . max 0 . min 65535 . round) . view _xyz . (* 65535)
         size@(V2 w h) = renderingSize r
 
-newtype Add f a = Add { getAdd :: f a }
-
-instance (Additive f, Num a) => Semigroup (Add f a) where
-  Add f1 <> Add f2 = Add (f1 ^+^ f2)
-
-instance (Additive f, Num a) => Monoid (Add f a) where
-  mempty = Add zero
-  mappend = (<>)
-
 
 data Average a = Average
   { averageCount   :: {-# UNPACK #-} !Int
