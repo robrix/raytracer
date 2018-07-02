@@ -16,8 +16,8 @@ import Linear.Epsilon
 import qualified Linear.Metric as Metric
 import Linear.V2
 import Linear.V3
-import Linear.Vector
-import Probability.Distribution hiding (unit)
+import Linear.Vector as Linear
+import Probability.Distribution
 import System.IO
 import System.Random (Random)
 import System.Random.Mersenne.Pure64
@@ -77,7 +77,7 @@ render size@(V2 w h) n scene = do
   rays <- samples n $ do
     x <- UniformR 0 (pred w)
     y <- UniformR 0 (pred h)
-    let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (unit _z)
+    let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
     sample <- trace 8 scene ray
     pure (V2 x y, Pixel (Average 1 sample))
   pure (Rendering (accumArray (<>) mempty (0, size) (rays `using` parList (evalTuple2 r0 rpar))))
