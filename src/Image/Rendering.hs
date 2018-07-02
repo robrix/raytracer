@@ -54,6 +54,11 @@ data Average a = Average
   , averageSamples :: a
   }
 
+getAverage :: Fractional a => Average a -> a
+getAverage (Average count samples)
+  | count == 0 = samples
+  | otherwise  = samples / fromIntegral count
+
 instance Num a => Semigroup (Average a) where
   Average c1 v1 <> Average c2 v2 = Average (c1 + c2) (v1 + v2)
 
