@@ -11,6 +11,7 @@ data Plane a = Plane
   { origin :: !(Point V3 a)
   , normal :: !(V3 a)
   }
+  deriving (Eq, Ord, Show)
 
 intersections :: (Epsilon a, RealFloat a) => Plane a -> Ray a -> [Intersection a]
 intersections (Plane centre normal) (Ray origin direction)
