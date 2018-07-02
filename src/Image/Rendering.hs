@@ -51,7 +51,7 @@ instance (Additive f, Num a) => Monoid (Add f a) where
 
 data Average a = Average
   { averageCount   :: {-# UNPACK #-} !Int
-  , averageSamples :: a
+  , averageSamples :: !a
   }
   deriving (Eq, Ord, Show)
 
