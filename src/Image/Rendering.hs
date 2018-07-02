@@ -47,3 +47,9 @@ instance (Additive f, Num a) => Semigroup (Add f a) where
 instance (Additive f, Num a) => Monoid (Add f a) where
   mempty = Add zero
   mappend = (<>)
+
+
+data Average f a = Average
+  { averageCount   :: {-# UNPACK #-} !Int
+  , averageSamples :: f a
+  }
