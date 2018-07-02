@@ -49,7 +49,7 @@ instance (Additive f, Num a) => Monoid (Add f a) where
   mappend = (<>)
 
 
-data Average f a = Average
+data Average a = Average
   { averageCount   :: {-# UNPACK #-} !Int
-  , averageSamples :: f a
+  , averageSamples :: a
   }
