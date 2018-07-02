@@ -1,11 +1,12 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 module Model.Scene where
 
+import Control.Concurrent.Async
 import Control.Monad.Random.Class (MonadRandom)
 import Control.Monad.Random.Strict
 import Data.Array
 import qualified Data.ByteString.Builder as B
-import Data.List (sortOn)
+import Data.List (foldl1', sortOn)
 import qualified Geometry.Plane as Plane
 import Geometry.Ray
 import qualified Geometry.Sphere as Sphere
@@ -93,5 +94,6 @@ renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -
 renderToFile size n path scene = do
   mt <- newPureMT
   withFile path WriteMode (\ handle -> do
-    rendering <- evalRandT (render size n scene) mt
-    B.hPutBuilder handle (toPPM Depth16 rendering))
+    renderings <- replicateConcurrently threads (evalRandT (render size (n `div` threads) scene) mt)
+    B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
+  where threads = 4
