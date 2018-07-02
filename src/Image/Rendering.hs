@@ -53,3 +53,6 @@ data Average a = Average
   { averageCount   :: {-# UNPACK #-} !Int
   , averageSamples :: a
   }
+
+instance Num a => Semigroup (Average a) where
+  Average c1 v1 <> Average c2 v2 = Average (c1 + c2) (v1 + v2)
