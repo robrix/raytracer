@@ -22,6 +22,7 @@ library
                      , Model.Scene
                      , Probability.Distribution
   build-depends:       array
+                     , async
                      , base >= 4.7 && < 5
                      , bytestring
                      , lens
