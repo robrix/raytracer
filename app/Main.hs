@@ -15,9 +15,10 @@ main = do
   renderToFile (V2 800 600) (800 * 600 * 2) path scene
   where scene = Scene
           [ Model (Sphere (G.Sphere (P (V3 0 0 10)) (250 :: Double))) black white
-          , Model (Sphere (G.Sphere (P (V3 0 350 0)) 50)) red black
-          , Model (Sphere (G.Sphere (P (V3 350 0 0)) 50)) green black
-          , Model (Sphere (G.Sphere (P (V3 0 0 (-350))) 50)) blue black
+          , Model (Sphere (G.Sphere (P (V3 0 350 0)) 50)) black red
+          , Model (Sphere (G.Sphere (P (V3 350 0 0)) 50)) black green
+          , Model (Sphere (G.Sphere (P (V3 0 0 (-350))) 50)) black blue
+          , Model (Sphere (G.Sphere (P (V3 350 350 (-350))) 50)) white black
           , top
           , bottom
           , left
