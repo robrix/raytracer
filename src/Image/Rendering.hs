@@ -1,4 +1,4 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DeriveFunctor, GeneralizedNewtypeDeriving #-}
 module Image.Rendering where
 
 import Control.Lens
@@ -53,7 +53,7 @@ data Average a = Average
   { averageCount   :: {-# UNPACK #-} !Int
   , averageSamples :: !a
   }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Functor, Ord, Show)
 
 getAverage :: Fractional a => Average a -> a
 getAverage (Average count samples)
