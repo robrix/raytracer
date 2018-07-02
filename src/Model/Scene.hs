@@ -26,18 +26,22 @@ data Octree a
   = Empty
   | Leaf a
   | XYZ a (V2 (V2 (V2 (Octree a))))
+  deriving (Eq, Ord, Show)
 
 newtype Scene a = Scene [Model a]
+  deriving (Eq, Ord, Show)
 
 data Geometry a
   = Sphere (Sphere.Sphere a)
   | Plane (Plane.Plane a)
+  deriving (Eq, Ord, Show)
 
 data Model a = Model
   { modelGeometry    :: Geometry a
   , modelEmittance   :: Point V3 a
   , modelReflectance :: Point V3 a
   }
+  deriving (Eq, Ord, Show)
 
 intersections :: (Epsilon a, RealFloat a) => Geometry a -> Ray a -> [Intersection a]
 intersections (Sphere sphere) = Sphere.intersections sphere
