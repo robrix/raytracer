@@ -3,7 +3,6 @@ module Model.Scene where
 
 import Control.Monad.Random.Class (MonadRandom)
 import Control.Monad.Random.Lazy
-import Control.Parallel.Strategies (evalTuple2, parList, r0, rpar, using)
 import Data.Array
 import qualified Data.ByteString.Builder as B
 import Data.List (sortOn)
@@ -82,13 +81,13 @@ trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . fli
 
 render :: (Conjugate a, Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering a)
 render size@(V2 w h) n scene = do
-  rays <- samples n $ do
+  samples <- samples n $ do
     x <- UniformR 0 (pred w)
     y <- UniformR 0 (pred h)
     let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
     sample <- trace 8 scene ray
     pure (V2 x y, Pixel (Average 1 sample))
-  pure (Rendering (accumArray (<>) mempty (0, size) (rays `using` parList (evalTuple2 r0 rpar))))
+  pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
 renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile size n path scene = do
