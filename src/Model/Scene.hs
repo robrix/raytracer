@@ -45,9 +45,9 @@ instance Geometry Model where
   intersections (Model geometry _ _) = intersections geometry
 
 data Step a = Step
-  { intersection :: Intersection a
-  , emittance    :: Point V3 a
-  , reflectance  :: Point V3 a
+  { intersection :: !(Intersection a)
+  , emittance    :: !(Point V3 a)
+  , reflectance  :: !(Point V3 a)
   }
 
 type Path a = [Step a]
