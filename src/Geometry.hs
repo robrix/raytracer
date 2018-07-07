@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs, StandaloneDeriving #-}
 module Geometry where
 
 import Geometry.Ray (Ray, Intersection)
@@ -11,7 +11,9 @@ class Geometry g where
   intersections :: (Epsilon a, RealFloat a) => g a -> Ray a -> [Intersection a]
 
 data SomeGeometry a where
-  SomeGeometry :: Geometry g => g a -> SomeGeometry a
+  SomeGeometry :: (Geometry g, Show (g a)) => g a -> SomeGeometry a
+
+deriving instance Show (SomeGeometry a)
 
 instance Geometry SomeGeometry where
   origin (SomeGeometry g) = origin g
