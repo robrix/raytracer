@@ -8,7 +8,7 @@ import Linear.V3
 
 class Geometry g where
   origin :: g a -> Point V3 a
-  intersections :: (Epsilon a, RealFloat a) => g a -> Ray a -> [Intersection a]
+  intersections :: (Epsilon a, RealFloat a) => g a -> Ray a -> [(a, Intersection a)]
 
 data SomeGeometry a where
   SomeGeometry :: (Geometry g, Show (g a)) => g a -> SomeGeometry a

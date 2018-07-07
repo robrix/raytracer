@@ -52,7 +52,7 @@ data Step a = Step
 
 type Path a = [Step a]
 
-modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [(Intersection a, Model a)]
+modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [((a, Intersection a), Model a)]
 modelIntersections model = fmap (flip (,) model) . intersections model
 
 cosineHemispheric :: (Random a, RealFloat a) => Distribution (V3 a)
@@ -64,9 +64,9 @@ cosineHemispheric = do
 
 trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
 trace 0 _ _ = pure zero
-trace n scene@(Scene models) ray = case models >>= sortOn (distance . fst) . flip modelIntersections ray of
+trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . flip modelIntersections ray of
   [] -> pure zero
-  (Intersection _ origin normal, Model _ emittance reflectance) : _ -> do
+  ((_, Intersection origin normal), Model _ emittance reflectance) : _ -> do
     v <- cosineHemispheric
     let direction = rotate (Quaternion (Linear.unit _z `Linear.dot` normal) (Linear.unit _z `cross` normal)) v
         brdf = reflectance ^/ pi

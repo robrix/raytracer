@@ -11,8 +11,7 @@ data Ray a = Ray
   deriving (Eq, Ord, Show)
 
 data Intersection a = Intersection
-  { distance :: !a
-  , origin   :: !(Point V3 a)
+  { origin   :: !(Point V3 a)
   , normal   :: !(V3 a)
   }
   deriving (Eq, Ord, Show)
