@@ -52,6 +52,13 @@ data Step a = Step
 
 type Path a = [Step a]
 
+samplePath :: RealFloat a => Path a -> Sample a
+samplePath = foldr sampleStep zero
+  where sampleStep (Step _ emittance reflectance) incoming =
+          let brdf = reflectance ^/ pi
+          in  emittance + (brdf * incoming ^/ prob)
+        prob = recip (2 * pi)
+
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [((a, Intersection a), Model a)]
 modelIntersections model = fmap (flip (,) model) . intersections model
 
