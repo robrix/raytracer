@@ -69,17 +69,14 @@ cosineHemispheric = do
       theta = 2 * pi * u2
   pure (V3 (r * cos theta) (r * sin theta) (sqrt (max 0 (1 - u1))))
 
-trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Sample a)
-trace 0 _ _ = pure zero
+trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Path a)
+trace 0 _ _ = pure []
 trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . flip modelIntersections ray of
-  [] -> pure zero
+  [] -> pure []
   ((_, Intersection origin normal), Model _ emittance reflectance) : _ -> do
     v <- cosineHemispheric
     let direction = rotate (Quaternion (Linear.unit _z `Linear.dot` normal) (Linear.unit _z `cross` normal)) v
-        brdf = reflectance ^/ pi
-    incoming <- trace (pred n) scene (Ray origin direction)
-    pure (emittance + (brdf * incoming ^/ prob))
-  where prob = recip (2 * pi)
+    (Step (Intersection origin normal) emittance reflectance :) <$> trace (pred n) scene (Ray origin direction)
 
 render :: (Conjugate a, Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering width height a)
 render size@(V2 w h) n scene = do
@@ -87,7 +84,8 @@ render size@(V2 w h) n scene = do
     x <- UniformR 0 (pred w)
     y <- UniformR 0 (pred h)
     let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
-    sample <- trace 8 scene ray
+    path <- trace 8 scene ray
+    let sample = samplePath path
     sample `seq` pure (V2 x y, Pixel (Average 1 sample))
   pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
