@@ -88,7 +88,7 @@ render size@(V2 w h) n scene = do
     y <- UniformR 0 (pred h)
     let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
     sample <- trace 8 scene ray
-    pure (V2 x y, Pixel (Average 1 sample))
+    sample `seq` pure (V2 x y, Pixel (Average 1 sample))
   pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
 renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
