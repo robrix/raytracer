@@ -26,12 +26,12 @@ main = do
           , back
           , front
           ]
-        top = Model (Plane (G.Plane (P (V3 0 500 0)) ((unit _y)))) black white
+        top    = Model (Plane (G.Plane (P (V3 0 500 0)) ((unit _y)))) black white
         bottom = Model (Plane (G.Plane (P (V3 0 (-500) 0)) (-(unit _y)))) black white
-        left = Model (Plane (G.Plane (P (V3 500 0 0)) ((unit _x)))) black white
-        right = Model (Plane (G.Plane (P (V3 (-500) 0 0)) (-(unit _x)))) black white
-        back = Model (Plane (G.Plane (P (V3 0 0 500)) ((unit _z)))) black white
-        front = Model (Plane (G.Plane (P (V3 0 0 (-500))) (-(unit _z)))) black white
+        left   = Model (Plane (G.Plane (P (V3 500 0 0)) ((unit _x)))) black white
+        right  = Model (Plane (G.Plane (P (V3 (-500) 0 0)) (-(unit _x)))) black white
+        back   = Model (Plane (G.Plane (P (V3 0 0 500)) ((unit _z)))) black white
+        front  = Model (Plane (G.Plane (P (V3 0 0 (-500))) (-(unit _z)))) black white
 
         black = zero
         white = P (V3 1 1 1)
