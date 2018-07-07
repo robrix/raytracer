@@ -1,5 +1,6 @@
 module Geometry.Plane where
 
+import Geometry
 import Geometry.Ray
 import Linear.Affine
 import Linear.Epsilon
@@ -21,3 +22,7 @@ intersections (Plane centre normal) (Ray origin direction)
         offset = centre - origin
         t = unP offset `dot` normal / denom
         intersection = origin + P direction ^* t
+
+instance Geometry Plane where
+  origin = Geometry.Plane.origin
+  intersections = Geometry.Plane.intersections
