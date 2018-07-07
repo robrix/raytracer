@@ -40,6 +40,10 @@ data Model a = Model
   }
   deriving (Show)
 
+instance Geometry Model where
+  origin (Model geometry _ _) = Geometry.origin geometry
+  intersections (Model geometry _ _) = intersections geometry
+
 data Step a = Step
   { intersection :: Intersection a
   , emittance    :: Point V3 a
@@ -49,7 +53,7 @@ data Step a = Step
 type Path a = [Step a]
 
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [(Intersection a, Model a)]
-modelIntersections model@(Model geometry _ _) = fmap (flip (,) model) . intersections geometry
+modelIntersections model = fmap (flip (,) model) . intersections model
 
 cosineHemispheric :: (Random a, RealFloat a) => Distribution (V3 a)
 cosineHemispheric = do
