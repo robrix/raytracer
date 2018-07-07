@@ -51,6 +51,9 @@ listOfN :: Int -> Distribution a -> Distribution [a]
 listOfN n element | n > 0 = (:) <$> element <*> listOfN (pred n) element
                   | otherwise = pure []
 
+draw :: [a] -> Distribution a
+draw = frequency . map ((,) 1 . pure)
+
 frequency :: [(Int, Distribution a)] -> Distribution a
 frequency [] = error "frequency called with empty list"
 frequency choices = (UniformR 0 total :: Distribution Int) >>= pick sorted
