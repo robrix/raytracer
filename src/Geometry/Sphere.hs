@@ -1,6 +1,7 @@
 module Geometry.Sphere where
 
 import Control.Applicative ((<**>))
+import Geometry
 import Geometry.Ray
 import Linear.Affine
 import Linear.Epsilon
@@ -23,3 +24,7 @@ intersections (Sphere centre radius) (Ray origin direction) = if discriminant < 
         discriminant = b ** 2 - norm (unP translated) ** 2 + radius ** 2
         atDistance d = Intersection d intersection (normalize (unP (intersection - centre)))
           where intersection = origin + P direction ^* d
+
+instance Geometry Sphere where
+  origin = Geometry.Sphere.origin
+  intersections = Geometry.Sphere.intersections
