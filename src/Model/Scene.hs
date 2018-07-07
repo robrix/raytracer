@@ -7,9 +7,8 @@ import Control.Monad.Random.Strict
 import Data.Array
 import qualified Data.ByteString.Builder as B
 import Data.List (foldl1', sortOn)
-import qualified Geometry.Plane as Plane
+import Geometry
 import Geometry.Ray
-import qualified Geometry.Sphere as Sphere
 import Image.Rendering hiding (samples)
 import Linear.Affine
 import Linear.Conjugate
@@ -32,19 +31,14 @@ data Octree a
   deriving (Eq, Ord, Show)
 
 newtype Scene a = Scene [Model a]
-  deriving (Eq, Ord, Show)
-
-data Geometry a
-  = Sphere (Sphere.Sphere a)
-  | Plane (Plane.Plane a)
-  deriving (Eq, Ord, Show)
+  deriving (Show)
 
 data Model a = Model
-  { geometry    :: Geometry a
+  { geometry    :: SomeGeometry a
   , emittance   :: Point V3 a
   , reflectance :: Point V3 a
   }
-  deriving (Eq, Ord, Show)
+  deriving (Show)
 
 data Step a = Step
   { intersection :: Intersection a
@@ -53,10 +47,6 @@ data Step a = Step
   }
 
 type Path a = [Step a]
-
-intersections :: (Epsilon a, RealFloat a) => Geometry a -> Ray a -> [Intersection a]
-intersections (Sphere sphere) = Sphere.intersections sphere
-intersections (Plane plane)   = Plane.intersections plane
 
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [(Intersection a, Model a)]
 modelIntersections model@(Model geometry _ _) = fmap (flip (,) model) . intersections geometry
