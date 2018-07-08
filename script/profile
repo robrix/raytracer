@@ -21,7 +21,7 @@ mkdir -p "$PROFILE_DIR"
 
 # NB: Do not try and use -N, it doesn't work and defaults to -N1.
 cores=$(sysctl -n machdep.cpu.core_count || echo 4)
-cabal new-run --enable-profiling -O2 exe:raytracer -- +RTS -sstderr -N$((cores * 2)) -A8m -n2m -p -s -h -i0.1 -L1000 -xt -RTS $@ > "$OUTFILE" 2> "$ERRFILE"
+cabal new-run --enable-profiling -O2 exe:raytracer -- +RTS -sstderr -N$cores -A8m -n2m -p -s -h -i0.1 -L1000 -xt -RTS $@ > "$OUTFILE" 2> "$ERRFILE"
 
 profiteur raytracer.prof || true
 
