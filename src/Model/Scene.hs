@@ -110,9 +110,9 @@ renderToFile size n path scene = do
   withFile path WriteMode (\ handle -> do
     renderings <- replicateConcurrently threads $ do
       replicateM_ (n `div` 4) $ do
-        (coord, pixel') <- sample (cast size scene)
-        pixel <- readArray array coord
-        writeArray array coord (pixel <> pixel')
+        (coord, pixel) <- sample (cast size scene)
+        pixel' <- (pixel <>) <$> readArray array coord
+        pixel' `seq` writeArray array coord pixel'
       Rendering <$> freeze array
     B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
   where threads = 4
