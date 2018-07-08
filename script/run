@@ -1,0 +1,15 @@
+#!/bin/bash
+# Usage: script/runs ARGS...
+# Builds and runs raytracer with the given args.
+
+set -e
+
+cabal new-build -O2 exe:raytracer
+
+PROJECT_DIR="$(dirname $0)/.."
+
+# NB: Do not try and use -N, it defaults to -N8, which is slower.
+cores=$(sysctl -n machdep.cpu.core_count || echo 4)
+time cabal new-run -O2 exe:raytracer -- +RTS -N$cores -RTS $@
+
+open "$PROJECT_DIR"
