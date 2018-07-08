@@ -1,9 +1,10 @@
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE DuplicateRecordFields, TypeApplications #-}
 module Model.Scene where
 
 import Control.Concurrent.Async
-import Control.Monad.Random.Strict
+import Control.Monad (replicateM, replicateM_)
 import Data.Array
+import Data.Array.IO
 import qualified Data.ByteString.Builder as B
 import Data.Foldable (foldr')
 import Data.List (foldl1', sortOn)
@@ -21,7 +22,6 @@ import Linear.Vector as Linear
 import Probability.Distribution as Distribution
 import System.IO
 import System.Random (Random)
-import System.Random.Mersenne.Pure64
 
 -- | Sparse 8-tree representation for efficiently storing and querying scenes.
 data Octree a
@@ -106,9 +106,14 @@ render size n scene = do
 
 renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile size n path scene = do
-  mt <- newPureMT
+  array <- newArray @IOArray (0, size) mempty
   withFile path WriteMode (\ handle -> do
-    renderings <- replicateConcurrently threads (evalRandT (sample (render size (n `div` threads) scene)) mt)
+    renderings <- replicateConcurrently threads $ do
+      replicateM_ (n `div` 4) $ do
+        (coord, pixel') <- sample (cast size scene)
+        pixel <- readArray array coord
+        writeArray array coord (pixel <> pixel')
+      Rendering <$> freeze array
     B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
   where threads = 4
 
