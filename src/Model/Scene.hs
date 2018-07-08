@@ -109,7 +109,7 @@ renderToFile size n path scene = do
   array <- newArray @IOArray (0, size) mempty
   withFile path WriteMode (\ handle -> do
     renderings <- replicateConcurrently threads $ do
-      replicateM_ (n `div` 4) $ do
+      replicateM_ (n `div` threads) $ do
         (coord, pixel) <- sample (cast size scene)
         pixel' <- (pixel <>) <$> readArray array coord
         pixel' `seq` writeArray array coord pixel'
