@@ -2,6 +2,7 @@
 module Model.Scene where
 
 import Control.Concurrent.Async
+import Control.Monad.Random.Strict
 import Control.Monad (replicateM, replicateM_)
 import Data.Array
 import Data.Array.IO
@@ -21,6 +22,7 @@ import Linear.Vector as Linear
 import Probability.Distribution as Distribution
 import System.IO
 import System.Random (Random)
+import System.Random.Mersenne.Pure64
 
 -- | Sparse 8-tree representation for efficiently storing and querying scenes.
 data Octree a
@@ -112,7 +114,8 @@ renderToFile threads size n path scene = do
   withFile path WriteMode (\ handle -> do
     renderings <- replicateConcurrently threads $ do
       replicateM_ (n `div` threads) $ do
-        (coord, pixel) <- sample (cast size scene)
+        mt <- newPureMT
+        (coord, pixel) <- evalRandT (sample (cast size scene)) mt
         pixel' <- (pixel <>) <$> readArray array coord
         pixel' `seq` writeArray array coord pixel'
       Rendering <$> freeze array
