@@ -110,8 +110,8 @@ render size n scene = do
 
 renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile threads size n path scene = do
-  array <- newArray @IOArray (0, size) mempty
   renderings <- replicateConcurrently threads $ do
+    array <- newArray @IOArray (0, size) mempty
     replicateM_ (n `div` threads) $ do
       mt <- newPureMT
       (coord, pixel) <- evalRandT (sample (cast size scene)) mt
