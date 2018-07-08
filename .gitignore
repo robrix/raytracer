@@ -3,3 +3,8 @@
 tags
 *.ppm
 *.png
+*.svg
+*.hp
+*.prof
+*.prof.html
+profiles/
