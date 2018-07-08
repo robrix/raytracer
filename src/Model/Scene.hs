@@ -59,8 +59,12 @@ samplePath = foldr sampleStep zero
           in  emittance + (brdf * incoming ^/ prob)
         prob = recip (2 * pi)
 
+{-# SPECIALIZE samplePath :: Path Double -> Sample Double #-}
+
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [((a, Intersection a), Model a)]
 modelIntersections model = fmap (flip (,) model) . intersections model
+
+{-# SPECIALIZE modelIntersections :: Model Double -> Ray Double -> [((Double, Intersection Double), Model Double)] #-}
 
 cosineHemispheric :: (Random a, RealFloat a) => Distribution (V3 a)
 cosineHemispheric = do
@@ -68,6 +72,8 @@ cosineHemispheric = do
   let r = sqrt u1
       theta = 2 * pi * u2
   pure (V3 (r * cos theta) (r * sin theta) (sqrt (max 0 (1 - u1))))
+
+{-# SPECIALIZE cosineHemispheric :: Distribution (V3 Double) #-}
 
 trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Path a)
 trace 0 _ _ = pure []
@@ -77,6 +83,8 @@ trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . flip mod
     v <- cosineHemispheric
     let direction = rotate (Quaternion (Linear.unit _z `Linear.dot` normal) (Linear.unit _z `cross` normal)) v
     (Step (Intersection origin normal) emittance reflectance :) <$> trace (pred n) scene (Ray origin direction)
+
+{-# SPECIALIZE trace :: Int -> Scene Double -> Ray Double -> Distribution (Path Double) #-}
 
 render :: (Conjugate a, Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering width height a)
 render size@(V2 w h) n scene = do
@@ -89,6 +97,8 @@ render size@(V2 w h) n scene = do
     sample `seq` pure (V2 x y, Pixel (Average 1 sample))
   pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
+{-# SPECIALIZE render :: MonadRandom m => Size -> Int -> Scene Double -> m (Rendering width height Double) #-}
+
 renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile size n path scene = do
   mt <- newPureMT
@@ -96,3 +106,5 @@ renderToFile size n path scene = do
     renderings <- replicateConcurrently threads (evalRandT (render size (n `div` threads) scene) mt)
     B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
   where threads = 4
+
+{-# SPECIALIZE renderToFile :: Size -> Int -> FilePath -> Scene Double -> IO () #-}
