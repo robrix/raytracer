@@ -6,6 +6,7 @@ import Control.Monad.Random.Strict
 import Control.Monad (replicateM, replicateM_)
 import Data.Array
 import Data.Array.IO
+import Data.Array.Unsafe
 import qualified Data.ByteString.Builder as B
 import Data.List (foldl1', sortOn)
 import Geometry
@@ -117,7 +118,7 @@ renderToFile threads size n path scene = do
       (coord, pixel) <- evalRandT (sample (cast size scene)) mt
       pixel' <- (pixel <>) <$> readArray array coord
       pixel' `seq` writeArray array coord pixel'
-    Rendering <$> freeze array
+    Rendering <$> unsafeFreeze array
   withFile path WriteMode (\ handle -> do
     B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
 
