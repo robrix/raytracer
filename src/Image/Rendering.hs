@@ -23,7 +23,7 @@ newtype Rendering (width :: Nat) (height :: Nat) a where
   Rendering :: { pixels :: Array Size (Pixel a) } -> Rendering width height a
 
 instance Num a => Semigroup (Rendering width height a) where
-  Rendering as <> Rendering bs = Rendering (accumArray (<>) mempty (bounds as) (assocs as <> assocs bs))
+  Rendering as <> Rendering bs = Rendering (listArray (bounds as) (zipWith (<>) (elems as) (elems bs)))
 
 renderingSize :: Rendering width height a -> Size
 renderingSize = snd . bounds . pixels
