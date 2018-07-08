@@ -15,7 +15,7 @@ main = do
   [path] <- getArgs
   renderToFile threads (V2 800 600) (800 * 600 * 2) path scene
   where scene = Scene
-          [ Model (SomeGeometry (Sphere (P (V3 0 0 10)) (250 :: Double))) black white
+          [ Model (SomeGeometry (Sphere (P (V3 0 0 10)) (250 :: Float))) black white
           , Model (SomeGeometry (Sphere (P (V3 0 350 0)) 50)) black red
           , Model (SomeGeometry (Sphere (P (V3 350 0 0)) 50)) black green
           , Model (SomeGeometry (Sphere (P (V3 0 0 (-350))) 50)) black blue

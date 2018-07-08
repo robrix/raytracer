@@ -24,5 +24,6 @@ instance Geometry Plane where
           t = unP offset `dot` normal / denom
           intersection = origin + P direction ^* t
 
+  {-# SPECIALIZE intersections :: Plane Float -> Ray Float -> [(Float, Intersection Float)] #-}
   {-# SPECIALIZE intersections :: Plane Double -> Ray Double -> [(Double, Intersection Double)] #-}
   {-# INLINABLE intersections #-}

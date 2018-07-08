@@ -64,11 +64,13 @@ samplePath (Step _ emittance reflectance :< rest)
   where prob = recip (2 * pi)
 samplePath End  = zero
 
+{-# SPECIALIZE samplePath :: Path Float -> Sample Float #-}
 {-# SPECIALIZE samplePath :: Path Double -> Sample Double #-}
 
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [((a, Intersection a), Model a)]
 modelIntersections model = fmap (flip (,) model) . intersections model
 
+{-# SPECIALIZE modelIntersections :: Model Float -> Ray Float -> [((Float, Intersection Float), Model Float)] #-}
 {-# SPECIALIZE modelIntersections :: Model Double -> Ray Double -> [((Double, Intersection Double), Model Double)] #-}
 
 cosineHemispheric :: (Random a, RealFloat a) => Distribution (V3 a)
@@ -78,6 +80,7 @@ cosineHemispheric = do
       theta = 2 * pi * u2
   pure (V3 (r * cos theta) (r * sin theta) (sqrt (max 0 (1 - u1))))
 
+{-# SPECIALIZE cosineHemispheric :: Distribution (V3 Float) #-}
 {-# SPECIALIZE cosineHemispheric :: Distribution (V3 Double) #-}
 
 trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Path a)
@@ -89,6 +92,7 @@ trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter (
     let direction = rotate (Quaternion (Linear.unit _z `Linear.dot` normal) (Linear.unit _z `cross` normal)) v
     (Step (Intersection origin normal) emittance reflectance :<) <$> trace (pred n) scene (Ray origin direction)
 
+{-# SPECIALIZE trace :: Int -> Scene Float -> Ray Float -> Distribution (Path Float) #-}
 {-# SPECIALIZE trace :: Int -> Scene Double -> Ray Double -> Distribution (Path Double) #-}
 
 cast :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Scene a -> Distribution (Size, Pixel a)
@@ -100,6 +104,7 @@ cast (V2 w h) scene = do
   let sample = samplePath path
   path `seq` sample `seq` pure (V2 x y, Pixel (Average 1 sample))
 
+{-# SPECIALIZE cast :: Size -> Scene Float -> Distribution (Size, Pixel Float) #-}
 {-# SPECIALIZE cast :: Size -> Scene Double -> Distribution (Size, Pixel Double) #-}
 
 render :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> Scene a -> Distribution (Rendering width height a)
@@ -107,6 +112,7 @@ render size n scene = do
   samples <- replicateM n (cast size scene)
   pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
+{-# SPECIALIZE render :: Size -> Int -> Scene Float -> Distribution (Rendering width height Float) #-}
 {-# SPECIALIZE render :: Size -> Int -> Scene Double -> Distribution (Rendering width height Double) #-}
 
 renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Size -> Int -> FilePath -> Scene a -> IO ()
@@ -123,3 +129,4 @@ renderToFile threads size n path scene = do
     B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
 
 {-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Double -> IO () #-}
+{-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Float -> IO () #-}

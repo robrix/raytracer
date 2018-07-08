@@ -25,5 +25,6 @@ instance Geometry Sphere where
           atDistance d = (d, Intersection intersection (normalize (unP (intersection - centre))))
             where intersection = origin + P direction ^* d
 
+  {-# SPECIALIZE intersections :: Sphere Float -> Ray Float -> [(Float, Intersection Float)] #-}
   {-# SPECIALIZE intersections :: Sphere Double -> Ray Double -> [(Double, Intersection Double)] #-}
   {-# INLINABLE intersections #-}
