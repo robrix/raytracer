@@ -2,7 +2,6 @@
 module Model.Scene where
 
 import Control.Concurrent.Async
-import Control.Monad.Random.Class (MonadRandom)
 import Control.Monad.Random.Strict
 import Data.Array
 import qualified Data.ByteString.Builder as B
@@ -87,9 +86,9 @@ trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . flip mod
 
 {-# SPECIALIZE trace :: Int -> Scene Double -> Ray Double -> Distribution (Path Double) #-}
 
-render :: (Conjugate a, Epsilon a, MonadRandom m, Random a, RealFloat a) => Size -> Int -> Scene a -> m (Rendering width height a)
+render :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> Scene a -> Distribution (Rendering width height a)
 render size@(V2 w h) n scene = do
-  samples <- samples n $ do
+  samples <- replicateM n $ do
     x <- UniformR 0 (pred w)
     y <- UniformR 0 (pred h)
     let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
@@ -98,13 +97,13 @@ render size@(V2 w h) n scene = do
     path `seq` sample `seq` pure (V2 x y, Pixel (Average 1 sample))
   pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
-{-# SPECIALIZE render :: MonadRandom m => Size -> Int -> Scene Double -> m (Rendering width height Double) #-}
+{-# SPECIALIZE render :: Size -> Int -> Scene Double -> Distribution (Rendering width height Double) #-}
 
 renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile size n path scene = do
   mt <- newPureMT
   withFile path WriteMode (\ handle -> do
-    renderings <- replicateConcurrently threads (evalRandT (render size (n `div` threads) scene) mt)
+    renderings <- replicateConcurrently threads (evalRandT (sample (render size (n `div` threads) scene)) mt)
     B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
   where threads = 4
 
