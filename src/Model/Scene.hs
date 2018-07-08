@@ -82,7 +82,7 @@ cosineHemispheric = do
 
 trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Path a)
 trace 0 _ _ = pure End
-trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . flip modelIntersections ray of
+trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter ((> 0) . fst . fst) . flip modelIntersections ray of
   [] -> pure End
   ((_, Intersection origin normal), Model _ emittance reflectance) : _ -> do
     v <- cosineHemispheric

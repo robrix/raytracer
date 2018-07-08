@@ -17,7 +17,7 @@ data Sphere a = Sphere
 
 instance Geometry Sphere where
   origin = Geometry.Sphere.origin
-  intersections (Sphere centre radius) (Ray origin direction) = if discriminant < 0 then [] else atDistance <$> filter (> 0) ts
+  intersections (Sphere centre radius) (Ray origin direction) = if discriminant < 0 then [] else atDistance <$> ts
     where ts = [-b] <**> [(+), (-)] <*> [sqrt discriminant]
           b = sum (direction * unP translated)
           translated = origin - centre
