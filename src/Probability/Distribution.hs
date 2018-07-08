@@ -42,14 +42,6 @@ unit = UniformR 0 1
 exponential :: (Floating a, Random a) => Distribution a
 exponential = negate (log Uniform)
 
-listOf :: Distribution a -> Distribution [a]
-listOf element = do
-  n <- UniformR 0 10 :: Distribution Int
-  listOfN n element
-
-listOfN :: Int -> Distribution a -> Distribution [a]
-listOfN = replicateM
-
 draw :: [a] -> Distribution a
 draw = frequency . map ((,) 1 . pure)
 
