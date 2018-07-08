@@ -49,14 +49,17 @@ data Step a = Step
   , reflectance  :: {-# UNPACK #-} !(Point V3 a)
   }
 
-type Path a = [Step a]
+data Path a
+  = {-# UNPACK #-} !(Step a) :< !(Path a)
+  | End
 
 samplePath :: RealFloat a => Path a -> Sample a
-samplePath = foldr sampleStep zero
-  where sampleStep (Step _ emittance reflectance) incoming =
-          let brdf = reflectance ^/ pi
-          in  emittance + (brdf * incoming ^/ prob)
-        prob = recip (2 * pi)
+samplePath (Step _ emittance reflectance :< rest)
+  = let brdf = reflectance ^/ pi
+        incoming = samplePath rest
+    in  brdf `seq` incoming `seq` emittance + (brdf * incoming ^/ prob)
+  where prob = recip (2 * pi)
+samplePath End  = zero
 
 {-# SPECIALIZE samplePath :: Path Double -> Sample Double #-}
 
@@ -75,13 +78,13 @@ cosineHemispheric = do
 {-# SPECIALIZE cosineHemispheric :: Distribution (V3 Double) #-}
 
 trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Path a)
-trace 0 _ _ = pure []
+trace 0 _ _ = pure End
 trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . flip modelIntersections ray of
-  [] -> pure []
+  [] -> pure End
   ((_, Intersection origin normal), Model _ emittance reflectance) : _ -> do
     v <- cosineHemispheric
     let direction = rotate (Quaternion (Linear.unit _z `Linear.dot` normal) (Linear.unit _z `cross` normal)) v
-    (Step (Intersection origin normal) emittance reflectance :) <$> trace (pred n) scene (Ray origin direction)
+    (Step (Intersection origin normal) emittance reflectance :<) <$> trace (pred n) scene (Ray origin direction)
 
 {-# SPECIALIZE trace :: Int -> Scene Double -> Ray Double -> Distribution (Path Double) #-}
 
