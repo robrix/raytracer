@@ -6,7 +6,6 @@ import Control.Monad (replicateM, replicateM_)
 import Data.Array
 import Data.Array.IO
 import qualified Data.ByteString.Builder as B
-import Data.Foldable (foldr')
 import Data.List (foldl1', sortOn)
 import Geometry
 import Geometry.Ray
@@ -53,7 +52,7 @@ data Step a = Step
 type Path a = [Step a]
 
 samplePath :: RealFloat a => Path a -> Sample a
-samplePath = foldr' sampleStep zero
+samplePath = foldr sampleStep zero
   where sampleStep (Step _ emittance reflectance) incoming =
           let brdf = reflectance ^/ pi
           in  emittance + (brdf * incoming ^/ prob)
