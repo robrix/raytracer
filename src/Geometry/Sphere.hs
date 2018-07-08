@@ -25,6 +25,9 @@ intersections (Sphere centre radius) (Ray origin direction) = if discriminant < 
         atDistance d = (d, Intersection intersection (normalize (unP (intersection - centre))))
           where intersection = origin + P direction ^* d
 
+{-# SPECIALIZE Geometry.Sphere.intersections :: Sphere Double -> Ray Double -> [(Double, Intersection Double)] #-}
+{-# INLINABLE Geometry.Sphere.intersections #-}
+
 instance Geometry Sphere where
   origin = Geometry.Sphere.origin
   intersections = Geometry.Sphere.intersections

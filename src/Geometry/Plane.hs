@@ -23,6 +23,9 @@ intersections (Plane centre normal) (Ray origin direction)
         t = unP offset `dot` normal / denom
         intersection = origin + P direction ^* t
 
+{-# SPECIALIZE Geometry.Plane.intersections :: Plane Double -> Ray Double -> [(Double, Intersection Double)] #-}
+{-# INLINABLE Geometry.Plane.intersections #-}
+
 instance Geometry Plane where
   origin = Geometry.Plane.origin
   intersections = Geometry.Plane.intersections
