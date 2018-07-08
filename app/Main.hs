@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Concurrent (getNumCapabilities)
 import Geometry
 import Geometry.Plane
 import Geometry.Sphere
@@ -13,7 +14,9 @@ import System.Environment
 main :: IO ()
 main = do
   [path] <- getArgs
-  renderToFile (V2 800 600) (800 * 600 * 2) path scene
+  threads <- getNumCapabilities
+  putStrLn ("running on " <> show threads <> " threads")
+  renderToFile threads (V2 800 600) (800 * 600 * 2) path scene
   where scene = Scene
           [ Model (SomeGeometry (Sphere (P (V3 0 0 10)) (250 :: Double))) black white
           , Model (SomeGeometry (Sphere (P (V3 0 350 0)) 50)) black red

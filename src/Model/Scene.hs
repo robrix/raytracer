@@ -104,8 +104,8 @@ render size n scene = do
 
 {-# SPECIALIZE render :: Size -> Int -> Scene Double -> Distribution (Rendering width height Double) #-}
 
-renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> FilePath -> Scene a -> IO ()
-renderToFile size n path scene = do
+renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Size -> Int -> FilePath -> Scene a -> IO ()
+renderToFile threads size n path scene = do
   array <- newArray @IOArray (0, size) mempty
   withFile path WriteMode (\ handle -> do
     renderings <- replicateConcurrently threads $ do
@@ -115,6 +115,5 @@ renderToFile size n path scene = do
         pixel' `seq` writeArray array coord pixel'
       Rendering <$> freeze array
     B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
-  where threads = 4
 
-{-# SPECIALIZE renderToFile :: Size -> Int -> FilePath -> Scene Double -> IO () #-}
+{-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Double -> IO () #-}
