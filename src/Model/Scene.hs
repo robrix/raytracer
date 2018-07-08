@@ -95,7 +95,7 @@ render size@(V2 w h) n scene = do
     let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
     path <- trace 8 scene ray
     let sample = samplePath path
-    sample `seq` pure (V2 x y, Pixel (Average 1 sample))
+    path `seq` sample `seq` pure (V2 x y, Pixel (Average 1 sample))
   pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
 {-# SPECIALIZE render :: MonadRandom m => Size -> Int -> Scene Double -> m (Rendering width height Double) #-}
