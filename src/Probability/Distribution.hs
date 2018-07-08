@@ -48,8 +48,7 @@ listOf element = do
   listOfN n element
 
 listOfN :: Int -> Distribution a -> Distribution [a]
-listOfN n element | n > 0 = (:) <$> element <*> listOfN (pred n) element
-                  | otherwise = pure []
+listOfN = replicateM
 
 draw :: [a] -> Distribution a
 draw = frequency . map ((,) 1 . pure)
