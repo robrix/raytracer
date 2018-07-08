@@ -86,15 +86,20 @@ trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . flip mod
 
 {-# SPECIALIZE trace :: Int -> Scene Double -> Ray Double -> Distribution (Path Double) #-}
 
+cast :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Scene a -> Distribution (Size, Pixel a)
+cast (V2 w h) scene = do
+  x <- UniformR 0 (pred w)
+  y <- UniformR 0 (pred h)
+  let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
+  path <- trace 8 scene ray
+  let sample = samplePath path
+  path `seq` sample `seq` pure (V2 x y, Pixel (Average 1 sample))
+
+{-# SPECIALIZE cast :: Size -> Scene Double -> Distribution (Size, Pixel Double) #-}
+
 render :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> Scene a -> Distribution (Rendering width height a)
-render size@(V2 w h) n scene = do
-  samples <- replicateM n $ do
-    x <- UniformR 0 (pred w)
-    y <- UniformR 0 (pred h)
-    let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
-    path <- trace 8 scene ray
-    let sample = samplePath path
-    path `seq` sample `seq` pure (V2 x y, Pixel (Average 1 sample))
+render size n scene = do
+  samples <- replicateM n (cast size scene)
   pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
 {-# SPECIALIZE render :: Size -> Int -> Scene Double -> Distribution (Rendering width height Double) #-}
