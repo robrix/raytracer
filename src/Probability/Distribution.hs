@@ -2,12 +2,10 @@
 module Probability.Distribution where
 
 import Control.Applicative (liftA2)
-import Control.Category ((>>>), id)
 import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class (MonadRandom(..))
 import Data.Foldable (foldl')
 import Data.List (sortOn)
-import Data.TASequence.BinaryTree (BinaryTree, TASequence(..), TAViewL(..))
 import Prelude hiding (id)
 import System.Random (Random(..))
 
@@ -18,20 +16,9 @@ data Distribution a where
   Let :: a -> (Distribution a -> Distribution a) -> Distribution a
 
   Pure :: a -> Distribution a
-  (:>>=) :: Distribution b -> Queue b a -> Distribution a
+  (:>>=) :: Distribution b -> (b -> Distribution a) -> Distribution a
 
 infixl 1 :>>=
-
-newtype Arrow a b = Arrow { runArrow :: a -> Distribution b }
-type Queue = BinaryTree Arrow
-
-apply :: Queue a b -> a -> Distribution b
-apply q a = case tviewl q of
-  TAEmptyL -> pure a
-  h :< t   -> case runArrow h a of
-    Pure b     -> apply t b
-    h' :>>= q' -> h' :>>= (q' >>> t)
-    h'         -> h' :>>=         t
 
 
 -- Constructors
@@ -63,7 +50,7 @@ sample Uniform = getRandom
 sample (UniformR from to) = getRandomR (from, to)
 sample (Let v f) = sample (f (Pure v))
 sample (Pure a) = pure a
-sample (a :>>= q) = sample a >>= sample . apply q
+sample (a :>>= q) = sample a >>= sample . q
 
 samples :: MonadRandom m => Int -> Distribution a -> m [a]
 samples n = replicateM n . sample
@@ -99,22 +86,22 @@ printHistogram buckets n = samples n >=> putStrLn . sparkify . histogram buckets
 
 instance Functor Distribution where
   fmap f (Pure a)   = Pure (f a)
-  fmap f (r :>>= q) = r :>>= q  |> Arrow (Pure . f)
-  fmap f a          = a :>>= id |> Arrow (Pure . f)
+  fmap f (r :>>= q) = r :>>= (q >=> Pure . f)
+  fmap f a          = a :>>=        Pure . f
 
 instance Applicative Distribution where
   pure = Pure
 
   Pure f     <*> a = fmap f a
-  (r :>>= q) <*> a = r :>>= q  |> Arrow (flip fmap a)
-  f          <*> a = f :>>= id |> Arrow (flip fmap a)
+  (r :>>= q) <*> a = r :>>= (q >=> flip fmap a)
+  f          <*> a = f :>>=        flip fmap a
 
 instance Monad Distribution where
   return = pure
 
   Pure a     >>= f = f a
-  (r :>>= q) >>= f = r :>>= q  |> Arrow f
-  a          >>= f = a :>>= id |> Arrow f
+  (r :>>= q) >>= f = r :>>= (q >=> f)
+  a          >>= f = a :>>=        f
 
 instance MonadRandom Distribution where
   getRandomR (from, to) = UniformR from to
