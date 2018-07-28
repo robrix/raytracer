@@ -32,7 +32,6 @@ library
                      , MonadRandom
                      , parallel
                      , random
-                     , type-aligned
   default-language:    Haskell2010
 
 executable raytracer
