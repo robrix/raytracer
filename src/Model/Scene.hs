@@ -78,7 +78,7 @@ cosineHemispheric = do
   (u1, u2) <- (,) <$> Distribution.unit <*> Distribution.unit
   let r = sqrt u1
       theta = 2 * pi * u2
-  pure (V3 (r * cos theta) (r * sin theta) (sqrt (max 0 (1 - u1))))
+  pure (V3 (r * cos theta) (sqrt (max 0 (1 - u1))) (r * sin theta))
 
 {-# SPECIALIZE cosineHemispheric :: Distribution (V3 Float) #-}
 {-# SPECIALIZE cosineHemispheric :: Distribution (V3 Double) #-}
@@ -99,7 +99,7 @@ trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter (
   [] -> pure End
   ((_, Intersection origin normal), Model _ emittance reflectance) : _ -> do
     v <- cosineHemispheric
-    let direction = rotate (Quaternion (Linear.unit _z `Linear.dot` normal) (Linear.unit _z `cross` normal)) v
+    let direction = rotate (Quaternion (Linear.unit _y `Linear.dot` normal) (Linear.unit _y `cross` normal)) v
     (Step (Intersection origin normal) emittance reflectance :<) <$> trace (pred n) scene (Ray origin direction)
 
 {-# SPECIALIZE trace :: Int -> Scene Float -> Ray Float -> Distribution (Path Float) #-}
