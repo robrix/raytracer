@@ -99,7 +99,7 @@ trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter (
   [] -> pure End
   ((_, Intersection origin normal), Model _ emittance reflectance) : _ -> do
     v <- cosineHemispheric
-    let direction = rotate (Quaternion (Linear.unit _y `Linear.dot` normal) (Linear.unit _y `cross` normal)) v
+    let direction = rotate (Quaternion ((Linear.unit _y `Linear.dot` normal) * pi / 2 + pi) (Linear.unit _y `cross` normal)) v
     (Step (Intersection origin normal) emittance reflectance :<) <$> trace (pred n) scene (Ray origin direction)
 
 {-# SPECIALIZE trace :: Int -> Scene Float -> Ray Float -> Distribution (Path Float) #-}
