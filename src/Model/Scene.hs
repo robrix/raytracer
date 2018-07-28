@@ -83,6 +83,16 @@ cosineHemispheric = do
 {-# SPECIALIZE cosineHemispheric :: Distribution (V3 Float) #-}
 {-# SPECIALIZE cosineHemispheric :: Distribution (V3 Double) #-}
 
+uniformHemispheric :: (Random a, RealFloat a) => Distribution (V3 a)
+uniformHemispheric = do
+  (u1, u2) <- (,) <$> Distribution.unit <*> Distribution.unit
+  let sinTheta = sqrt (1 - u1 * u1)
+      phi = 2 * pi * u2
+  pure (V3 (sinTheta * cos phi) u1 (sinTheta * sin phi))
+
+{-# SPECIALIZE uniformHemispheric :: Distribution (V3 Float) #-}
+{-# SPECIALIZE uniformHemispheric :: Distribution (V3 Double) #-}
+
 trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Path a)
 trace 0 _ _ = pure End
 trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter ((> 0) . fst . fst) . flip modelIntersections ray of
