@@ -93,24 +93,28 @@ uniformHemispheric = do
 {-# SPECIALIZE uniformHemispheric :: Distribution (V3 Float) #-}
 {-# SPECIALIZE uniformHemispheric :: Distribution (V3 Double) #-}
 
-trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Scene a -> Ray a -> Distribution (Path a)
-trace 0 _ _ = pure End
-trace n scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter ((> 0) . fst . fst) . flip modelIntersections ray of
+trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Scene a -> Ray a -> Distribution (Path a)
+trace scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter ((> 0) . fst . fst) . flip modelIntersections ray of
   [] -> pure End
   ((_, Intersection origin normal), Model _ emittance reflectance) : _ -> do
     v <- cosineHemispheric
     let direction = rotate (Quaternion ((Linear.unit _y `Linear.dot` normal) * pi / 2 + pi) (Linear.unit _y `cross` normal)) v
-    (Step (Intersection origin normal) emittance reflectance :<) <$> trace (pred n) scene (Ray origin direction)
+    (Step (Intersection origin normal) emittance reflectance :<) <$> do
+      n <- getRandomR (0, 8 :: Int)
+      if n == 0 then
+        pure End
+      else
+        trace scene (Ray origin direction)
 
-{-# SPECIALIZE trace :: Int -> Scene Float -> Ray Float -> Distribution (Path Float) #-}
-{-# SPECIALIZE trace :: Int -> Scene Double -> Ray Double -> Distribution (Path Double) #-}
+{-# SPECIALIZE trace :: Scene Float -> Ray Float -> Distribution (Path Float) #-}
+{-# SPECIALIZE trace :: Scene Double -> Ray Double -> Distribution (Path Double) #-}
 
 cast :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Scene a -> Distribution (Size, Pixel a)
 cast (V2 w h) scene = do
   x <- UniformR 0 (pred w)
   y <- UniformR 0 (pred h)
   let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
-  path <- trace 8 scene ray
+  path <- trace scene ray
   let sample = samplePath path
   path `seq` sample `seq` pure (V2 x y, Pixel (Average 1 sample))
 
