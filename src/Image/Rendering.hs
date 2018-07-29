@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds, DeriveFunctor, GADTs, GeneralizedNewtypeDeriving, KindSignatures #-}
 module Image.Rendering where
 
+import qualified Codec.Picture as C
 import Control.Lens
 import Data.Array
 import qualified Data.ByteString.Builder as B
@@ -39,6 +40,20 @@ toPPM depth r = header <> encodePixels (pixels r)
           Depth8 -> foldMap (B.word8 . max 0 . min 255 . round) . view _xyz . (* 255)
           Depth16 -> foldMap (B.word16BE . max 0 . min 65535 . round) . view _xyz . (* 65535)
         size@(V2 w h) = renderingSize r
+
+toPNG :: RealFrac a => Depth -> Rendering width height a -> B.Builder
+toPNG depth r = B.lazyByteString $ case depth of
+  Depth8  -> C.encodePng (C.generateImage (encodePixels8  (pixels r)) w h)
+  Depth16 -> C.encodePng (C.generateImage (encodePixels16 (pixels r)) w h)
+  where encodePixels8  pixels x y = encodePixel8  (pixels ! V2 x y)
+        encodePixels16 pixels x y = encodePixel16 (pixels ! V2 x y)
+        encodePixel8  = encodeSample8  . getAverage . samples
+        encodePixel16 = encodeSample16 . getAverage . samples
+        encodeSample8  (P (V3 r g b)) = C.PixelRGB8  (component8  r) (component8  g) (component8  b)
+        encodeSample16 (P (V3 r g b)) = C.PixelRGB16 (component16 r) (component16 g) (component16 b)
+        component8  = max 0 . min   255 . round . (*   255)
+        component16 = max 0 . min 65535 . round . (* 65535)
+        V2 w h = renderingSize r
 
 
 data Average a = Average
