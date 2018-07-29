@@ -143,7 +143,7 @@ renderToFile threads size n path scene = do
       pixel' `seq` writeArray array coord pixel'
     Rendering <$> unsafeFreeze array
   withFile path WriteMode (\ handle -> do
-    B.hPutBuilder handle (toPPM Depth16 (foldl1' (<>) renderings)))
+    B.hPutBuilder handle (toPNG Depth16 (foldl1' (<>) renderings)))
 
 {-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Double -> IO () #-}
 {-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Float -> IO () #-}
