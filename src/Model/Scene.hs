@@ -37,8 +37,8 @@ newtype Scene a = Scene [Model a]
 
 data Model a = Model
   { geometry    :: SomeGeometry a
-  , emittance   :: Point V3 a
-  , reflectance :: Point V3 a
+  , emittance   :: {-# UNPACK #-} !(Point V3 a)
+  , reflectance :: {-# UNPACK #-} !(Point V3 a)
   }
   deriving (Show)
 
