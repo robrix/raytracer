@@ -10,6 +10,7 @@ import Data.Array.Unsafe
 import qualified Data.ByteString.Builder as B
 import Data.List (foldl1', sortOn)
 import Geometry
+import Geometry.Path
 import Geometry.Ray
 import Image.Rendering hiding (samples)
 import Linear.Affine
@@ -45,16 +46,6 @@ data Model a = Model
 instance Geometry Model where
   origin (Model geometry _ _) = Geometry.origin geometry
   intersections (Model geometry _ _) = intersections geometry
-
-data Step a = Step
-  { intersection :: {-# UNPACK #-} !(Intersection a)
-  , emittance    :: {-# UNPACK #-} !(Point V3 a)
-  , reflectance  :: {-# UNPACK #-} !(Point V3 a)
-  }
-
-data Path a
-  = {-# UNPACK #-} !(Step a) :< !(Path a)
-  | End
 
 samplePath :: RealFloat a => Path a -> Sample a
 samplePath (Step _ emittance reflectance :< rest)
