@@ -115,7 +115,7 @@ cast (V2 w h) (V2 x y) scene = do
 render :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> Scene a -> Distribution (Rendering width height a)
 render size n scene = do
   Rendering . listArray (0, size) <$> traverse (stimesM n) rays
-  where rays = columnMajor size (\ x y -> cast size (V2 x y) scene)
+  where rays = columnMajor size (\ coords -> cast size coords scene)
 
 {-# SPECIALIZE render :: Size -> Int -> Scene Float -> Distribution (Rendering width height Float) #-}
 {-# SPECIALIZE render :: Size -> Int -> Scene Double -> Distribution (Rendering width height Double) #-}

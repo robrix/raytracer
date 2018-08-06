@@ -18,11 +18,11 @@ newtype Pixel a = Pixel { samples :: Average (Sample a) }
 type Coords = V2 Int
 type Size = V2 Int
 
-rowMajor :: Size -> (Int -> Int -> a) -> [a]
-rowMajor (V2 w h) f = [ f x y | y <- [0..pred h], x <- [0..pred w] ]
+rowMajor :: Size -> (Coords -> a) -> [a]
+rowMajor (V2 w h) f = [ f (V2 x y) | y <- [0..pred h], x <- [0..pred w] ]
 
-columnMajor :: Size -> (Int -> Int -> a) -> [a]
-columnMajor (V2 w h) f = [ f x y | x <- [0..pred w], y <- [0..pred h] ]
+columnMajor :: Size -> (Coords -> a) -> [a]
+columnMajor (V2 w h) f = [ f (V2 x y) | x <- [0..pred w], y <- [0..pred h] ]
 
 newtype Rendering (width :: Nat) (height :: Nat) a where
   Rendering :: { pixels :: Array Size (Pixel a) } -> Rendering width height a
@@ -38,7 +38,7 @@ data Depth = Depth8 | Depth16
 toPPM :: RealFrac a => Depth -> Rendering width height a -> B.Builder
 toPPM depth r = header <> encodePixels (pixels r)
   where header = foldMap B.string7 (intersperse " " ["P6", show w, "", show h, case depth of { Depth8 -> "255\n" ; Depth16 -> "65535\n" }])
-        encodePixels pixels = mconcat (rowMajor size (\ x y -> encodePixel (pixels ! V2 x y)))
+        encodePixels pixels = mconcat (rowMajor size (\ coords -> encodePixel (pixels ! coords)))
         encodePixel = encodeSample . getAverage . samples
         encodeSample = case depth of
           Depth8 -> foldMap (B.word8 . max 0 . min 255 . round) . view _xyz . (* 255)
