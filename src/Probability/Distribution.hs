@@ -13,8 +13,6 @@ data Distribution a where
   Uniform  :: Random a => Distribution a
   UniformR :: Random a => a -> a -> Distribution a
 
-  Let :: a -> (Distribution a -> Distribution a) -> Distribution a
-
   Pure :: a -> Distribution a
   (:>>=) :: Distribution b -> (b -> Distribution a) -> Distribution a
 
@@ -48,7 +46,6 @@ frequency choices = (UniformR 0 total :: Distribution Int) >>= pick sorted
 sample :: MonadRandom m => Distribution a -> m a
 sample Uniform = getRandom
 sample (UniformR from to) = getRandomR (from, to)
-sample (Let v f) = sample (f (Pure v))
 sample (Pure a) = pure a
 sample (a :>>= q) = sample a >>= sample . q
 
