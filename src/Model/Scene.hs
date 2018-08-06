@@ -93,9 +93,10 @@ trace scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter ((>
             v
           else
             rotate (Quaternion ((Linear.unit _y `Linear.dot` normal) * pi / 2 + pi) (Linear.unit _y `cross` normal)) v
+        isLight = emittance /= zero
     (Step (Intersection origin normal) emittance reflectance :<) <$> do
       n <- getRandomR (0, 8 :: Int)
-      if n == 0 then
+      if n == 0 || isLight then
         pure End
       else
         trace scene (Ray origin direction)
