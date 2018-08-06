@@ -20,6 +20,9 @@ type Size = V2 Int
 rowMajor :: Size -> (Int -> Int -> a) -> [a]
 rowMajor (V2 w h) f = [ f x y | y <- [0..pred h], x <- [0..pred w] ]
 
+columnMajor :: Size -> (Int -> Int -> a) -> [a]
+columnMajor (V2 w h) f = [ f x y | x <- [0..pred w], y <- [0..pred h] ]
+
 newtype Rendering (width :: Nat) (height :: Nat) a where
   Rendering :: { pixels :: Array Size (Pixel a) } -> Rendering width height a
 
