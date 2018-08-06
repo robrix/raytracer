@@ -13,7 +13,7 @@ import System.Environment
 main :: IO ()
 main = do
   [path] <- getArgs
-  renderToFile threads (V2 600 600) (600 * 600 * 2) path scene
+  renderToFile threads (V2 600 600) 1 path scene
   where scene = Scene
           [ Model (SomeGeometry (Sphere (P (V3 0 0 10)) (250 :: Float))) black white
           , Model (SomeGeometry (Sphere (P (V3 0 350 0)) 50)) black red
