@@ -3,8 +3,10 @@ module Model.Scene where
 
 import Control.Concurrent.Async
 import Control.Monad.Random.Strict
-import Control.Monad (replicateM)
+import Control.Monad (replicateM, replicateM_)
 import Data.Array
+import Data.Array.IO
+import Data.Array.Unsafe
 import qualified Data.ByteString.Builder as B
 import Data.List (foldl1', sortOn)
 import Geometry
@@ -102,20 +104,22 @@ trace scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter ((>
 {-# SPECIALIZE trace :: Scene Float -> Ray Float -> Distribution (Path Float) #-}
 {-# SPECIALIZE trace :: Scene Double -> Ray Double -> Distribution (Path Double) #-}
 
-cast :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Size -> Scene a -> Distribution (Pixel a)
-cast (V2 w h) (V2 x y) scene = do
+cast :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Scene a -> Distribution (Size, Pixel a)
+cast (V2 w h) scene = do
+  x <- UniformR 0 (pred w)
+  y <- UniformR 0 (pred h)
   let ray = Ray (P (V3 (fromIntegral (w `div` 2 - x)) (fromIntegral (h `div` 2 - y)) (-450))) (Linear.unit _z)
   path <- trace scene ray
   let sample = samplePath path
-  path `seq` sample `seq` pure (Pixel (Average 1 sample))
+  path `seq` sample `seq` pure (V2 x y, Pixel (Average 1 sample))
 
-{-# SPECIALIZE cast :: Size -> Size -> Scene Float -> Distribution (Pixel Float) #-}
-{-# SPECIALIZE cast :: Size -> Size -> Scene Double -> Distribution (Pixel Double) #-}
+{-# SPECIALIZE cast :: Size -> Scene Float -> Distribution (Size, Pixel Float) #-}
+{-# SPECIALIZE cast :: Size -> Scene Double -> Distribution (Size, Pixel Double) #-}
 
 render :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Size -> Int -> Scene a -> Distribution (Rendering width height a)
 render size n scene = do
-  Rendering . listArray (0, size) <$> traverse (stimesM n) rays
-  where rays = columnMajor size (\ coords -> cast size coords scene)
+  samples <- replicateM n (cast size scene)
+  pure (Rendering (accumArray (<>) mempty (0, size) samples))
 
 {-# SPECIALIZE render :: Size -> Int -> Scene Float -> Distribution (Rendering width height Float) #-}
 {-# SPECIALIZE render :: Size -> Int -> Scene Double -> Distribution (Rendering width height Double) #-}
@@ -123,13 +127,15 @@ render size n scene = do
 renderToFile :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Int -> Size -> Int -> FilePath -> Scene a -> IO ()
 renderToFile threads size n path scene = do
   renderings <- replicateConcurrently threads $ do
-    mt <- newPureMT
-    evalRandT (sample (render size n scene)) mt
+    array <- newArray @IOArray (0, size) mempty
+    replicateM_ (n `div` threads) $ do
+      mt <- newPureMT
+      (coord, pixel) <- evalRandT (sample (cast size scene)) mt
+      pixel' <- (pixel <>) <$> readArray array coord
+      pixel' `seq` writeArray array coord pixel'
+    Rendering <$> unsafeFreeze array
   withFile path WriteMode (\ handle -> do
     B.hPutBuilder handle (toPNG Depth16 (foldl1' (<>) renderings)))
 
 {-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Float -> IO () #-}
 {-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Double -> IO () #-}
-
-stimesM :: (Semigroup a, Monad m) => Int -> m a -> m a
-stimesM n = fmap (foldl1' (<>)) . replicateM n
