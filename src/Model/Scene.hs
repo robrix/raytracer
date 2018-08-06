@@ -137,5 +137,5 @@ renderToFile threads size n path scene = do
   withFile path WriteMode (\ handle -> do
     B.hPutBuilder handle (toPNG Depth16 (foldl1' (<>) renderings)))
 
-{-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Double -> IO () #-}
 {-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Float -> IO () #-}
+{-# SPECIALIZE renderToFile :: Int -> Size -> Int -> FilePath -> Scene Double -> IO () #-}
