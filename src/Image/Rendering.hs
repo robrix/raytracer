@@ -15,6 +15,7 @@ type Sample a = Point V3 a
 newtype Pixel a = Pixel { samples :: Average (Sample a) }
   deriving (Eq, Monoid, Ord, Semigroup, Show)
 
+type Coords = V2 Int
 type Size = V2 Int
 
 rowMajor :: Size -> (Int -> Int -> a) -> [a]
