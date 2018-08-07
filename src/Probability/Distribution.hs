@@ -2,7 +2,7 @@
 module Probability.Distribution where
 
 import Control.Applicative (Alternative(..), liftA2)
-import Control.Monad ((>=>), replicateM)
+import Control.Monad (MonadPlus(..), (>=>), replicateM)
 import Control.Monad.Random.Class (MonadRandom(..))
 import Data.Foldable (foldl')
 import Data.List (sortOn)
@@ -105,6 +105,10 @@ instance Monad Distribution where
   Pure a     >>= f = f a
   (r :>>= q) >>= f = r :>>= (q >=> f)
   a          >>= f = a :>>=        f
+
+instance MonadPlus Distribution where
+  mzero = Empty
+  mplus = (<|>)
 
 instance MonadRandom Distribution where
   getRandomR (from, to) = UniformR from to
