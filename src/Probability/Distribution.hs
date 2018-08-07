@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 module Probability.Distribution where
 
-import Control.Applicative (liftA2)
+import Control.Applicative (Alternative(..), liftA2)
 import Control.Monad ((>=>), replicateM)
 import Control.Monad.Random.Class (MonadRandom(..))
 import Data.Foldable (foldl')
@@ -13,6 +13,7 @@ data Distribution a where
   Uniform  :: Random a => Distribution a
   UniformR :: Random a => a -> a -> Distribution a
 
+  Empty :: Distribution a
   Pure :: a -> Distribution a
   (:>>=) :: Distribution b -> (b -> Distribution a) -> Distribution a
 
@@ -43,13 +44,14 @@ frequency choices = (UniformR 0 total :: Distribution Int) >>= pick sorted
 
 -- Eliminators
 
-sample :: MonadRandom m => Distribution a -> m a
+sample :: (Alternative m, MonadRandom m) => Distribution a -> m a
 sample Uniform = getRandom
 sample (UniformR from to) = getRandomR (from, to)
+sample Empty = empty
 sample (Pure a) = pure a
 sample (a :>>= q) = sample a >>= sample . q
 
-samples :: MonadRandom m => Int -> Distribution a -> m [a]
+samples :: (Alternative m, MonadRandom m) => Int -> Distribution a -> m [a]
 samples n = replicateM n . sample
 
 
@@ -92,6 +94,10 @@ instance Applicative Distribution where
   Pure f     <*> a = fmap f a
   (r :>>= q) <*> a = r :>>= (q >=> flip fmap a)
   f          <*> a = f :>>=        flip fmap a
+
+instance Alternative Distribution where
+  empty = Empty
+  a <|> b = Uniform >>= \ c -> if c then a else b
 
 instance Monad Distribution where
   return = pure
