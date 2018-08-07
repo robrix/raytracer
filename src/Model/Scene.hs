@@ -1,6 +1,7 @@
 {-# LANGUAGE DuplicateRecordFields, TypeApplications #-}
 module Model.Scene where
 
+import Control.Applicative ((<|>))
 import Control.Concurrent.Async
 import Control.Monad.Random.Strict
 import Control.Monad (replicateM, replicateM_)
@@ -83,6 +84,12 @@ uniformHemispheric = do
 
 {-# SPECIALIZE uniformHemispheric :: Distribution (V3 Float) #-}
 {-# SPECIALIZE uniformHemispheric :: Distribution (V3 Double) #-}
+
+uniformSpherical :: (Random a, RealFloat a) => a -> Distribution (V3 a)
+uniformSpherical radius = (^* radius) <$> uniformHemispheric <|> (^* negate radius) <$> uniformHemispheric
+
+{-# SPECIALIZE uniformSpherical :: Float -> Distribution (V3 Float) #-}
+{-# SPECIALIZE uniformSpherical :: Double -> Distribution (V3 Double) #-}
 
 trace :: (Conjugate a, Epsilon a, Random a, RealFloat a) => Scene a -> Ray a -> Distribution (Path a)
 trace scene@(Scene models) ray = case models >>= sortOn (fst . fst) . filter ((> 0) . fst . fst) . flip modelIntersections ray of
