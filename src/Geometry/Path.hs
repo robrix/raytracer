@@ -25,5 +25,6 @@ samplePath (Step _ emittance reflectance :< rest)
   where prob = recip (2 * pi)
 samplePath End  = zero
 
+{-# INLINABLE samplePath #-}
 {-# SPECIALIZE samplePath :: Path Float -> Sample Float #-}
 {-# SPECIALIZE samplePath :: Path Double -> Sample Double #-}
