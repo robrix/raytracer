@@ -49,17 +49,6 @@ instance Geometry Model where
   origin (Model geometry _ _) = Geometry.origin geometry
   intersections (Model geometry _ _) = intersections geometry
 
-samplePath :: RealFloat a => Path a -> Sample a
-samplePath (Step _ emittance reflectance :< rest)
-  = let brdf = reflectance ^/ pi
-        incoming = samplePath rest
-    in  brdf `seq` incoming `seq` emittance + (brdf * incoming ^/ prob)
-  where prob = recip (2 * pi)
-samplePath End  = zero
-
-{-# SPECIALIZE samplePath :: Path Float -> Sample Float #-}
-{-# SPECIALIZE samplePath :: Path Double -> Sample Double #-}
-
 modelIntersections :: (Epsilon a, RealFloat a) => Model a -> Ray a -> [((a, Intersection a), Model a)]
 modelIntersections model = fmap (flip (,) model) . intersections model
 
