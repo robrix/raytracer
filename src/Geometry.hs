@@ -1,7 +1,8 @@
 {-# LANGUAGE GADTs, StandaloneDeriving #-}
 module Geometry where
 
-import Geometry.Ray (Ray, Intersection)
+import Geometry.Intersection (Intersection)
+import Geometry.Ray (Ray)
 import Linear.Affine (Point)
 import Linear.Epsilon
 import Linear.V3

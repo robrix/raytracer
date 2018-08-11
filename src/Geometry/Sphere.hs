@@ -2,6 +2,7 @@ module Geometry.Sphere where
 
 import Control.Applicative ((<**>))
 import Geometry
+import Geometry.Intersection
 import Geometry.Ray
 import Linear.Affine
 import Linear.Metric (norm, normalize)

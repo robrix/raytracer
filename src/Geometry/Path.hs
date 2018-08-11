@@ -1,6 +1,6 @@
 module Geometry.Path where
 
-import Geometry.Ray
+import Geometry.Intersection
 import Linear.Affine
 import Linear.V3
 

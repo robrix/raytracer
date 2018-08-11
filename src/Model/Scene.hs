@@ -11,6 +11,7 @@ import Data.Array.Unsafe
 import qualified Data.ByteString.Builder as B
 import Data.List (foldl1', sortOn)
 import Geometry
+import Geometry.Intersection
 import Geometry.Path
 import Geometry.Ray
 import Image.Rendering hiding (samples)

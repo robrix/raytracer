@@ -1,6 +1,7 @@
 module Geometry.Plane where
 
 import Geometry
+import Geometry.Intersection
 import Geometry.Ray
 import Linear.Affine
 import Linear.Metric (dot)
