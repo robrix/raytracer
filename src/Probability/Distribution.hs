@@ -1,39 +1,29 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE DeriveFunctor, ExistentialQuantification, FlexibleContexts, FlexibleInstances, KindSignatures, MultiParamTypeClasses, StandaloneDeriving, TypeOperators, UndecidableInstances #-}
 module Probability.Distribution where
 
-import Control.Applicative (Alternative(..), liftA2)
-import Control.Monad (MonadPlus(..), (>=>), replicateM)
-import Control.Monad.Random.Class (MonadRandom(..))
+import Control.Effect
+import Control.Effect.Random
+import Control.Monad ((>=>), replicateM)
+import Control.Monad.IO.Class (MonadIO(..))
 import Data.Foldable (foldl')
 import Data.List (sortOn)
 import Prelude hiding (id)
-import System.Random (Random(..))
-
-data Distribution a where
-  Uniform  :: Random a => Distribution a
-  UniformR :: Random a => a -> a -> Distribution a
-
-  Empty :: Distribution a
-  Pure :: a -> Distribution a
-  (:>>=) :: Distribution b -> (b -> Distribution a) -> Distribution a
-
-infixl 1 :>>=
-
+import System.Random as R (Random(..), RandomGen(..))
 
 -- Constructors
 
-unit :: (Num a, Random a) => Distribution a
-unit = UniformR 0 1
+unit :: (MonadRandom m, Num a, R.Random a) => m a
+unit = getRandomR (0, 1)
 
-exponential :: (Floating a, Random a) => Distribution a
-exponential = negate (log Uniform)
+exponential :: (Floating a, MonadRandom m, R.Random a) => m a
+exponential = negate . log <$> getRandom
 
-draw :: [a] -> Distribution a
+draw :: MonadRandom m => [a] -> m a
 draw = frequency . map ((,) 1 . pure)
 
-frequency :: [(Int, Distribution a)] -> Distribution a
+frequency :: MonadRandom m => [(Int, m a)] -> m a
 frequency [] = error "frequency called with empty list"
-frequency choices = (UniformR 0 total :: Distribution Int) >>= pick sorted
+frequency choices = getRandomR (0, total) >>= pick sorted
   where total = sum (fst <$> sorted)
         sorted = reverse (sortOn fst choices)
         pick ((i, a) : rest) n
@@ -44,15 +34,8 @@ frequency choices = (UniformR 0 total :: Distribution Int) >>= pick sorted
 
 -- Eliminators
 
-sample :: (Alternative m, MonadRandom m) => Distribution a -> m a
-sample Uniform = getRandom
-sample (UniformR from to) = getRandomR (from, to)
-sample Empty = empty
-sample (Pure a) = pure a
-sample (a :>>= q) = sample a >>= sample . q
-
-samples :: (Alternative m, MonadRandom m) => Int -> Distribution a -> m [a]
-samples n = replicateM n . sample
+samples :: (Carrier sig m, Effect sig, Monad m, RandomGen g) => g -> Int -> Eff (RandomC g m) a -> m [a]
+samples g n = evalRandom g . replicateM n
 
 
 -- Inspection
@@ -77,74 +60,5 @@ sparkify bins
         max = maximum bins
         spark n = sparks !! round ((fromIntegral n * ((1.0 :: Double) / fromIntegral max)) * fromIntegral maxSpark)
 
-printHistogram :: Real a => [a] -> Int -> Distribution a -> IO ()
-printHistogram buckets n = samples n >=> putStrLn . sparkify . histogram buckets
-
-
--- Instances
-
-instance Functor Distribution where
-  fmap f (Pure a)   = Pure (f a)
-  fmap f (r :>>= q) = r :>>= (q >=> Pure . f)
-  fmap f a          = a :>>=        Pure . f
-
-instance Applicative Distribution where
-  pure = Pure
-
-  Pure f     <*> a = fmap f a
-  (r :>>= q) <*> a = r :>>= (q >=> flip fmap a)
-  f          <*> a = f :>>=        flip fmap a
-
-instance Alternative Distribution where
-  empty = Empty
-  a <|> b = Uniform >>= \ c -> if c then a else b
-
-instance Monad Distribution where
-  return = pure
-
-  Pure a     >>= f = f a
-  (r :>>= q) >>= f = r :>>= (q >=> f)
-  a          >>= f = a :>>=        f
-
-instance MonadPlus Distribution where
-  mzero = Empty
-  mplus = (<|>)
-
-instance MonadRandom Distribution where
-  getRandomR (from, to) = UniformR from to
-  getRandom = Uniform
-  getRandomRs interval = (:) <$> getRandomR interval <*> getRandomRs interval
-  getRandoms = (:) <$> getRandom <*> getRandoms
-
-instance Num a => Num (Distribution a) where
-  (+) = liftA2 (+)
-  (*) = liftA2 (*)
-  abs = fmap abs
-  signum = fmap signum
-  fromInteger = pure . fromInteger
-  negate = fmap negate
-
-instance Fractional a => Fractional (Distribution a) where
-  fromRational = pure . fromRational
-  recip = fmap recip
-
-instance Floating a => Floating (Distribution a) where
-  pi = pure pi
-  exp = fmap exp
-  log = fmap log
-  sin = fmap sin
-  cos = fmap cos
-  tan = fmap tan
-  asin = fmap asin
-  acos = fmap acos
-  atan = fmap atan
-  sinh = fmap sinh
-  cosh = fmap cosh
-  tanh = fmap tanh
-  asinh = fmap asinh
-  acosh = fmap acosh
-  atanh = fmap atanh
-
-instance Bounded a => Bounded (Distribution a) where
-  minBound = pure minBound
-  maxBound = pure maxBound
+printHistogram :: (Carrier sig m, Effect sig, MonadIO m, RandomGen g, Real a) => g -> [a] -> Int -> Eff (RandomC g m) a -> m ()
+printHistogram g buckets n = samples g n >=> liftIO . putStrLn . sparkify . histogram buckets
