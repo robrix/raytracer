@@ -28,6 +28,7 @@ library
                      , async
                      , base >= 4.7 && < 5
                      , bytestring
+                     , higher-order-effects
                      , JuicyPixels
                      , lens
                      , linear

@@ -1,0 +1,3 @@
+[submodule "vendor/higher-order-effects"]
+	path = vendor/higher-order-effects
+	url = https://github.com/robrix/higher-order-effects.git
